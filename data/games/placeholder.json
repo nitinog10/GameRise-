@@ -1,0 +1,9 @@
+{
+  "games": [
+    {
+      "id": "valorant",
+      "name": "Valorant",
+      "category": "FPS"
+    }
+  ]
+}
