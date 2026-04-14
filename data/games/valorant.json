@@ -1,0 +1,85 @@
+{
+  "name": "Valorant",
+  "slug": "valorant",
+  "genre": "FPS",
+  "coverImage": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800",
+  "description": "A 5v5 character-based tactical FPS where precise gunplay meets unique agent abilities.",
+  "difficulty": "hard",
+  "isActive": true,
+  "roles": [
+    {
+      "name": "Duelist",
+      "description": "Self-sufficient fraggers who create space for the team",
+      "agents": ["Jett", "Reyna", "Phoenix", "Raze"]
+    },
+    {
+      "name": "Controller",
+      "description": "Experts at slicing up dangerous territory to set their team up for success",
+      "agents": ["Brimstone", "Omen", "Viper", "Astra"]
+    },
+    {
+      "name": "Sentinel",
+      "description": "Defensive experts who lock down areas and watch flanks",
+      "agents": ["Sage", "Cypher", "Killjoy", "Chamber"]
+    },
+    {
+      "name": "Initiator",
+      "description": "Challenge angles by setting up their team to enter contested ground",
+      "agents": ["Sova", "Breach", "Skye", "KAY/O"]
+    }
+  ],
+  "maps": [
+    {
+      "name": "Ascent",
+      "tips": [
+        "Control mid early for map dominance",
+        "Use Sage wall on B site for post-plant",
+        "A site has multiple entry points - coordinate pushes"
+      ]
+    },
+    {
+      "name": "Bind",
+      "tips": [
+        "No mid lane - use teleporters strategically",
+        "Hookah control is crucial for B site",
+        "Watch for aggressive A short pushes"
+      ]
+    },
+    {
+      "name": "Haven",
+      "tips": [
+        "Three sites require good rotation timing",
+        "Garage control opens multiple options",
+        "C site long is vulnerable to operator picks"
+      ]
+    }
+  ],
+  "mechanics": [
+    "Counter-strafing for accurate shots",
+    "Spray control and recoil patterns",
+    "Ability economy management",
+    "Crosshair placement at head level",
+    "Peeking angles and jiggle peeking"
+  ],
+  "tips": [
+    "Always buy armor before weapons",
+    "Communicate enemy positions clearly",
+    "Save ultimate abilities for crucial rounds",
+    "Practice aim training daily for 15-30 minutes",
+    "Learn one agent per role before expanding"
+  ],
+  "proStrategies": [
+    {
+      "title": "Default Setup",
+      "description": "Spread across the map to gather information before committing to a site. Controllers smoke key areas while duelists take map control."
+    },
+    {
+      "title": "Fast Execute",
+      "description": "Quick coordinated push with utility usage. Smokes, flashes, and entry fraggers move together to overwhelm defenders."
+    },
+    {
+      "title": "Fake and Rotate",
+      "description": "Use utility and make noise on one site, then quickly rotate to hit the other site when defenders commit."
+    }
+  ]
+}

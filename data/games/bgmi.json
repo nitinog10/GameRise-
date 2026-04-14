@@ -1,0 +1,79 @@
+{
+  "name": "BGMI",
+  "slug": "bgmi",
+  "genre": "Battle Royale",
+  "coverImage": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800",
+  "description": "Battlegrounds Mobile India - 100 players parachute onto an island to fight for survival in this battle royale phenomenon.",
+  "difficulty": "medium",
+  "isActive": true,
+  "roles": [
+    {
+      "name": "IGL (In-Game Leader)",
+      "description": "Makes rotation calls and strategic decisions",
+      "agents": []
+    },
+    {
+      "name": "Fragger",
+      "description": "Aggressive player focused on eliminations",
+      "agents": []
+    },
+    {
+      "name": "Support",
+      "description": "Provides cover fire and utility support",
+      "agents": []
+    },
+    {
+      "name": "Sniper",
+      "description": "Long-range specialist with bolt-action rifles",
+      "agents": []
+    }
+  ],
+  "maps": [
+    {
+      "name": "Erangel",
+      "tips": [
+        "Hot drop Pochinki for early action and loot",
+        "School and Rozhok offer balanced risk-reward",
+        "Use compounds for cover during mid-game rotations",
+        "Bridge camping is risky but effective for zone control"
+      ]
+    },
+    {
+      "name": "Miramar",
+      "tips": [
+        "Hacienda and Pecado are high-tier loot zones",
+        "Use terrain elevation for positioning advantage",
+        "Vehicle rotations are essential due to map size",
+        "Avoid open desert areas during final circles"
+      ]
+    }
+  ],
+  "mechanics": [
+    "Recoil control for spray weapons",
+    "Gyroscope aiming for precision",
+    "Sound positioning and footstep tracking",
+    "Grenade cooking and trajectory",
+    "Lean shooting around cover"
+  ],
+  "tips": [
+    "Always carry smoke grenades for revives and rotations",
+    "Land near vehicles for better mobility options",
+    "Prioritize level 2+ armor and helmets",
+    "Use headphones for directional audio advantage",
+    "Practice recoil control in training mode daily"
+  ],
+  "proStrategies": [
+    {
+      "title": "Loot Route Optimization",
+      "description": "Plan efficient looting paths that maximize gear while minimizing zone pressure. Hit 3-4 compounds then rotate early to center circle."
+    },
+    {
+      "title": "Circle Play",
+      "description": "Position on the edge of safe zone to catch rotating teams. Use natural cover and avoid being sandwiched between zone and enemies."
+    },
+    {
+      "title": "Compound Control",
+      "description": "Secure a central compound in final circles. Use throwables to deny enemy pushes and maintain high ground advantage."
+    }
+  ]
+}

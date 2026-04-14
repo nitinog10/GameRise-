@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const gamesRoutes = require('./routes/games');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -15,6 +16,7 @@ app.get('/api/test', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/games', gamesRoutes);
 
 app.use(errorHandler);
 

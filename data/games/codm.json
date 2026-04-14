@@ -1,0 +1,79 @@
+{
+  "name": "Call of Duty Mobile",
+  "slug": "codm",
+  "genre": "FPS",
+  "coverImage": "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800",
+  "description": "Fast-paced mobile FPS featuring multiplayer modes, battle royale, and iconic Call of Duty gameplay.",
+  "difficulty": "medium",
+  "isActive": true,
+  "roles": [
+    {
+      "name": "Slayer",
+      "description": "Aggressive player focused on eliminations and map pressure",
+      "agents": []
+    },
+    {
+      "name": "Objective Player",
+      "description": "Focuses on capturing and defending objectives",
+      "agents": []
+    },
+    {
+      "name": "Support",
+      "description": "Uses scorestreaks and utility to assist team",
+      "agents": []
+    },
+    {
+      "name": "Anchor",
+      "description": "Holds key positions and prevents enemy flanks",
+      "agents": []
+    }
+  ],
+  "maps": [
+    {
+      "name": "Nuketown",
+      "tips": [
+        "Control the center lane for map dominance",
+        "Use houses for cover and objective defense",
+        "Watch for grenade spam at match start",
+        "Flank through side lanes when center is locked"
+      ]
+    },
+    {
+      "name": "Crash",
+      "tips": [
+        "Mid control is essential for rotations",
+        "Use rooftops for elevation advantage",
+        "Three-lane design allows for strategic flanks",
+        "Helicopter area provides strong defensive position"
+      ]
+    }
+  ],
+  "mechanics": [
+    "Slide and jump movement techniques",
+    "Dropshot and jumpshot mechanics",
+    "Scorestreak timing and usage",
+    "Weapon attachment optimization",
+    "Operator skill activation timing"
+  ],
+  "tips": [
+    "Customize HUD layout for comfortable controls",
+    "Use high frame rate mode for competitive advantage",
+    "Learn recoil patterns for meta weapons",
+    "Equip lightweight perk for faster movement",
+    "Practice quickscoping in practice mode"
+  ],
+  "proStrategies": [
+    {
+      "title": "Spawn Control",
+      "description": "Manipulate enemy spawn points by controlling map areas. Push too far and spawns flip, giving enemies better positions."
+    },
+    {
+      "title": "Scorestreak Stacking",
+      "description": "Coordinate with team to use scorestreaks in sequence. UAV → Counter-UAV → Predator Missile creates overwhelming pressure."
+    },
+    {
+      "title": "Power Position Rotation",
+      "description": "Identify and rotate between strong positions on the map. Don't stay static - move after getting 2-3 kills to avoid being pre-aimed."
+    }
+  ]
+}
