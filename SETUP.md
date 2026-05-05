@@ -7,7 +7,7 @@ Complete step-by-step setup instructions for the GameRise platform.
 - Node.js (v16 or higher)
 - npm or yarn
 - AWS Account with DynamoDB access
-- Anthropic API key (for AI Coach feature)
+- OpenRouter API key (for AI Coach feature)
 
 ## Step 1: AWS DynamoDB Setup
 
@@ -87,15 +87,22 @@ Wait for the index status to become "Active".
     - Secret Access Key
     (You won't be able to see the secret again!)
 
-## Step 2: Get Anthropic API Key (for AI Coach)
+## Step 2: Get OpenRouter API Key (for AI Coach)
 
-1. Go to [console.anthropic.com](https://console.anthropic.com/)
+1. Go to [openrouter.ai](https://openrouter.ai/)
 2. Sign up or log in
-3. Go to API Keys section
+3. Go to Keys section in your dashboard
 4. Click "Create Key"
 5. Copy and save the API key
 
-**Note**: The AI Coach feature requires a valid Anthropic API key with access to Claude. The app uses `claude-sonnet-4-20250514` model.
+**Note**: OpenRouter provides access to multiple AI models (Claude, GPT-4, Gemini, etc.) through a single API. The default model is `anthropic/claude-3.5-sonnet`. You can change the model via the `OPENROUTER_MODEL` env variable.
+
+**Available models** (set via `OPENROUTER_MODEL`):
+- `anthropic/claude-3.5-sonnet` (default, recommended)
+- `anthropic/claude-3-haiku` (faster, cheaper)
+- `openai/gpt-4o` (OpenAI GPT-4)
+- `google/gemini-pro-1.5` (Google Gemini)
+- See [openrouter.ai/models](https://openrouter.ai/models) for full list
 
 ## Step 3: Backend Setup
 
@@ -121,7 +128,8 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 DYNAMO_TABLE_USERS=gamerise-users
 DYNAMO_TABLE_GAMES=gamerise-games
 DYNAMO_TABLE_COACH_SESSIONS=gamerise-coach-sessions
-ANTHROPIC_API_KEY=your_anthropic_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
 ```
 
 ### Start Backend Server
@@ -297,11 +305,12 @@ The role is set during registration. The `adminMiddleware` checks `req.user.role
 
 ### AI Coach Not Responding
 
-- Verify `ANTHROPIC_API_KEY` is set in backend .env
-- Check that the API key is valid and has credits
-- Ensure the backend can reach `api.anthropic.com`
+- Verify `OPENROUTER_API_KEY` is set in backend .env
+- Check that the API key is valid and has credits on [openrouter.ai](https://openrouter.ai/)
+- Ensure the backend can reach `openrouter.ai`
 - Check browser console for SSE connection errors
 - Verify the `gamerise-coach-sessions` table and `userId-index` GSI exist
+- Try changing `OPENROUTER_MODEL` to a different model if the current one is unavailable
 
 ### AI Coach Session History Not Loading
 
@@ -332,7 +341,7 @@ gamerise/
 │   ├── routes/
 │   │   ├── auth.js               # Auth endpoints (register/login)
 │   │   ├── games.js              # Game endpoints (CRUD)
-│   │   └── aiCoach.js            # AI Coach endpoint (SSE streaming)
+│   │   └── aiCoach.js            # AI Coach endpoint (SSE streaming via OpenRouter)
 │   ├── services/
 │   │   └── gameContext.js        # Game data loader & context builder for AI
 │   ├── middleware/

@@ -24,7 +24,7 @@ Full-stack esports platform for Indian and global gamers, featuring a Game Knowl
 - Fully responsive design
 
 ### 🤖 AI Esports Coach
-- Game-aware AI coaching powered by Claude (Anthropic)
+- Game-aware AI coaching powered by OpenRouter (Claude, GPT-4, etc.)
 - Streaming responses via Server-Sent Events (SSE)
 - Game selector dropdown for context-aware answers
 - Multi-turn conversation with history
@@ -42,7 +42,7 @@ Full-stack esports platform for Indian and global gamers, featuring a Game Knowl
 
 - **Frontend**: React 18, Tailwind CSS, React Router v6, Axios
 - **Backend**: Node.js, Express, AWS DynamoDB (SDK v3)
-- **AI**: Anthropic Claude API (`@anthropic-ai/sdk`)
+- **AI**: OpenRouter API (supports Claude, GPT-4, Gemini, and more)
 - **Auth**: JWT + bcrypt
 - **Dev Tools**: Nodemon, dotenv, CORS
 
@@ -53,7 +53,7 @@ Full-stack esports platform for Indian and global gamers, featuring a Game Knowl
 cd backend
 npm install
 cp .env.example .env
-# Edit .env with your AWS and Anthropic credentials
+# Edit .env with your AWS and OpenRouter credentials
 npm run dev
 ```
 
@@ -118,7 +118,8 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 DYNAMO_TABLE_USERS=gamerise-users
 DYNAMO_TABLE_GAMES=gamerise-games
 DYNAMO_TABLE_COACH_SESSIONS=gamerise-coach-sessions
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
 ```
 
 ### Frontend (.env)
@@ -139,7 +140,7 @@ gamerise/
 │   ├── routes/
 │   │   ├── auth.js               # Auth endpoints (register/login)
 │   │   ├── games.js              # Game endpoints (CRUD)
-│   │   └── aiCoach.js            # AI Coach endpoint (SSE streaming)
+│   │   └── aiCoach.js            # AI Coach endpoint (SSE streaming via OpenRouter)
 │   ├── services/
 │   │   └── gameContext.js        # Game data loader & context builder for AI
 │   ├── middleware/
