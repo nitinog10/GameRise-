@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/axios';
+
+const CoachAvatar = React.lazy(() => import('../components/CoachAvatar'));
 
 const SUGGESTED_QUESTIONS = [
   'How do I improve my aim?',
@@ -83,13 +85,11 @@ const AiCoach = () => {
     const text = messageText || input.trim();
     if (!text || isStreaming) return;
 
-    // Add user message
     const userMessage = { role: 'user', content: text };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsStreaming(true);
 
-    // Add placeholder for AI response
     const aiMessage = { role: 'assistant', content: '' };
     setMessages(prev => [...prev, aiMessage]);
 
@@ -136,8 +136,6 @@ const AiCoach = () => {
                 });
               } else if (data.type === 'session') {
                 setSessionId(data.sessionId);
-              } else if (data.type === 'done') {
-                // Streaming complete
               } else if (data.type === 'error') {
                 setMessages(prev => {
                   const updated = [...prev];
@@ -149,7 +147,7 @@ const AiCoach = () => {
                 });
               }
             } catch (e) {
-              // Ignore parse errors for incomplete chunks
+              // Ignore parse errors
             }
           }
         }
@@ -183,62 +181,77 @@ const AiCoach = () => {
   };
 
   const formatMessage = (content) => {
-    // Simple markdown-like formatting
     return content
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-800 px-1 rounded text-neon">$1</code>')
+      .replace(/`(.*?)`/g, '<code class="bg-gray-800 px-1.5 py-0.5 rounded text-neon text-xs">$1</code>')
       .replace(/\n/g, '<br/>');
   };
 
   return (
-    <div className="min-h-screen bg-dark flex">
-      {/* Sidebar - Session History */}
-      <div className={`${showSidebar ? 'translate-x-0' : '-translate-x-full'} fixed md:relative md:translate-x-0 z-20 w-72 h-full bg-[#12121a] border-r border-gray-800 transition-transform duration-200 flex flex-col`}>
-        <div className="p-4 border-b border-gray-800">
-          <h2 className="text-lg font-bold text-neon">AI Coach</h2>
-          <p className="text-xs text-gray-500 mt-1">Session History</p>
+    <div className="min-h-screen bg-dark bg-coach-gradient bg-dots flex">
+      {/* Sidebar */}
+      <div className={`${showSidebar ? 'translate-x-0' : '-translate-x-full'} fixed md:relative md:translate-x-0 z-30 w-72 h-full glass-strong flex flex-col transition-transform duration-300`}>
+        <div className="p-5 border-b border-white/5">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-neon flex items-center justify-center">
+              <span className="text-dark font-bold text-sm">🤖</span>
+            </div>
+            <div>
+              <h2 className="text-white font-bold">AI Coach</h2>
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider">Session History</p>
+            </div>
+          </div>
         </div>
 
         <div className="p-3">
           <button
             onClick={startNewChat}
-            className="w-full px-4 py-2 bg-neon text-dark font-bold rounded-lg hover:bg-green-400 transition text-sm"
+            className="w-full btn-neon text-sm py-2.5 flex items-center justify-center gap-2"
           >
-            + New Chat
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            New Chat
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+        <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
           {sessions.map(session => (
             <button
               key={session.sessionId}
               onClick={() => loadSession(session.sessionId)}
-              className={`w-full text-left px-3 py-2 rounded-lg transition text-sm ${
+              className={`w-full text-left px-3 py-2.5 rounded-xl transition-all text-sm group ${
                 sessionId === session.sessionId
-                  ? 'bg-gray-800 text-neon'
-                  : 'text-gray-400 hover:bg-gray-800/50 hover:text-white'
+                  ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                  : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
               }`}
             >
-              <div className="font-medium truncate">
+              <div className="font-medium truncate flex items-center gap-2">
+                <span className="text-xs">
+                  {session.gameSlug === 'valorant' ? '🎯' : session.gameSlug === 'bgmi' ? '🔫' : session.gameSlug === 'codm' ? '💥' : '💬'}
+                </span>
                 {session.gameSlug ? session.gameSlug.toUpperCase() : 'General'} Chat
               </div>
-              <div className="text-xs text-gray-600 mt-1">
+              <div className="text-[10px] text-gray-600 mt-0.5">
                 {new Date(session.createdAt).toLocaleDateString()}
               </div>
             </button>
           ))}
           {sessions.length === 0 && (
-            <p className="text-gray-600 text-xs text-center py-4">No sessions yet</p>
+            <p className="text-gray-600 text-xs text-center py-8">No sessions yet.<br />Start a conversation!</p>
           )}
         </div>
 
-        <div className="p-3 border-t border-gray-800">
+        <div className="p-3 border-t border-white/5">
           <Link
             to="/"
-            className="block text-center text-gray-500 hover:text-white text-sm transition"
+            className="flex items-center gap-2 text-gray-500 hover:text-white text-sm transition"
           >
-            ← Back to Home
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
           </Link>
         </div>
       </div>
@@ -246,7 +259,7 @@ const AiCoach = () => {
       {/* Sidebar overlay for mobile */}
       {showSidebar && (
         <div
-          className="fixed inset-0 bg-black/50 z-10 md:hidden"
+          className="fixed inset-0 bg-black/60 z-20 md:hidden backdrop-blur-sm"
           onClick={() => setShowSidebar(false)}
         />
       )}
@@ -254,26 +267,40 @@ const AiCoach = () => {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="bg-[#12121a] border-b border-gray-800 px-4 py-3 flex items-center gap-3">
+        <div className="glass-strong px-4 md:px-6 py-3 flex items-center gap-3 border-b border-white/5">
           <button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="md:hidden text-gray-400 hover:text-white"
+            className="md:hidden text-gray-400 hover:text-white p-1"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-white">AI Esports Coach</h1>
-            <p className="text-xs text-gray-500">Powered by Claude • Game-aware coaching</p>
+          {/* 3D Avatar mini */}
+          <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 neon-border-purple">
+            <Suspense fallback={
+              <div className="w-full h-full bg-purple-500/20 flex items-center justify-center text-sm">🤖</div>
+            }>
+              <CoachAvatar size={40} isSpeaking={isStreaming} isThinking={isStreaming && messages[messages.length - 1]?.content === ''} />
+            </Suspense>
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h1 className="text-white font-bold text-sm">AI Esports Coach</h1>
+            <div className="flex items-center gap-1.5">
+              <span className={`w-1.5 h-1.5 rounded-full ${isStreaming ? 'bg-amber-400 animate-pulse' : 'bg-neon'}`} />
+              <p className="text-[10px] text-gray-500 uppercase tracking-wider">
+                {isStreaming ? 'Thinking...' : 'Online • Game-aware'}
+              </p>
+            </div>
           </div>
 
           {/* Game Selector */}
           <select
             value={selectedGame}
             onChange={(e) => setSelectedGame(e.target.value)}
-            className="bg-gray-800 text-white text-sm rounded-lg px-3 py-2 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-neon"
+            className="input-glass input-glass-purple text-sm rounded-xl px-3 py-2 w-auto max-w-[160px]"
           >
             <option value="">All Games</option>
             {games.map(game => (
@@ -285,19 +312,37 @@ const AiCoach = () => {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-5">
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="text-6xl mb-4">🎮</div>
-              <h2 className="text-2xl font-bold text-white mb-2">Welcome, {user?.username}!</h2>
-              <p className="text-gray-400 mb-8 max-w-md">
-                I'm your AI esports coach. Ask me anything about improving your gameplay, strategies, or mental game.
+            <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
+              {/* Large 3D Avatar */}
+              <div className="mb-6 animate-float">
+                <Suspense fallback={
+                  <div className="w-48 h-48 rounded-full bg-purple-500/10 flex items-center justify-center neon-border-purple">
+                    <span className="text-6xl">🤖</span>
+                  </div>
+                }>
+                  <CoachAvatar size={200} isSpeaking={false} isThinking={false} />
+                </Suspense>
+              </div>
+
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                Hey, {user?.username}! 👋
+              </h2>
+              <p className="text-gray-400 mb-2 max-w-md text-sm">
+                I'm your AI esports coach. I know Valorant, BGMI, CODM inside out.
+              </p>
+              <p className="text-gray-500 mb-8 max-w-md text-xs">
+                Ask me anything — strategies, aim tips, role advice, mental game, or tournament prep.
               </p>
 
               {selectedGame && (
-                <div className="mb-6 px-4 py-2 bg-gray-800 rounded-lg">
-                  <span className="text-gray-400 text-sm">Context: </span>
-                  <span className="text-neon font-medium">{games.find(g => g.slug === selectedGame)?.name || selectedGame}</span>
+                <div className="mb-6 px-4 py-2 glass rounded-xl flex items-center gap-2">
+                  <span className="text-neon text-xs">🎮</span>
+                  <span className="text-gray-300 text-sm font-medium">
+                    {games.find(g => g.slug === selectedGame)?.name || selectedGame}
+                  </span>
+                  <span className="text-gray-600 text-xs">selected</span>
                 </div>
               )}
 
@@ -306,7 +351,8 @@ const AiCoach = () => {
                   <button
                     key={i}
                     onClick={() => sendMessage(q)}
-                    className="px-4 py-2 bg-gray-800 text-gray-300 rounded-full text-sm hover:bg-gray-700 hover:text-neon transition border border-gray-700"
+                    className="px-4 py-2 glass rounded-xl text-sm text-gray-300 hover:text-neon hover:border-neon/30 transition-all border border-transparent hover:border-neon/20"
+                    style={{ animationDelay: `${i * 0.1}s` }}
                   >
                     {q}
                   </button>
@@ -318,20 +364,25 @@ const AiCoach = () => {
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}
             >
+              {msg.role === 'assistant' && (
+                <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center mr-3 flex-shrink-0 mt-1">
+                  <span className="text-xs">🤖</span>
+                </div>
+              )}
               <div
-                className={`max-w-[80%] md:max-w-[70%] px-4 py-3 rounded-2xl ${
+                className={`max-w-[80%] md:max-w-[65%] px-5 py-3.5 ${
                   msg.role === 'user'
-                    ? 'bg-neon/20 text-white border border-neon/30'
-                    : 'bg-[#1a1a24] text-gray-200 border border-gray-800'
+                    ? 'chat-bubble-user'
+                    : 'chat-bubble-ai'
                 }`}
               >
                 {msg.role === 'assistant' && (
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-neon text-xs font-bold">AI COACH</span>
+                    <span className="text-purple-400 text-[10px] font-bold uppercase tracking-wider">AI Coach</span>
                     {idx === messages.length - 1 && isStreaming && (
-                      <span className="inline-block w-2 h-2 bg-neon rounded-full animate-pulse" />
+                      <span className="inline-block w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
                     )}
                   </div>
                 )}
@@ -340,43 +391,67 @@ const AiCoach = () => {
                   dangerouslySetInnerHTML={{ __html: formatMessage(msg.content || '') }}
                 />
                 {msg.role === 'assistant' && idx === messages.length - 1 && isStreaming && !msg.content && (
-                  <div className="flex gap-1 py-2">
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="flex gap-1.5 py-2">
+                    {[0, 1, 2].map(i => (
+                      <span
+                        key={i}
+                        className="w-2 h-2 bg-purple-400/60 rounded-full"
+                        style={{ animation: `typing-dot 1.4s ease-in-out ${i * 0.2}s infinite` }}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
+              {msg.role === 'user' && (
+                <div className="w-8 h-8 rounded-full bg-neon/20 flex items-center justify-center ml-3 flex-shrink-0 mt-1">
+                  <span className="text-neon text-xs font-bold">{user?.username?.[0]?.toUpperCase()}</span>
+                </div>
+              )}
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
 
         {/* Input Area */}
-        <div className="bg-[#12121a] border-t border-gray-800 px-4 py-3">
-          <div className="flex gap-2 max-w-4xl mx-auto">
-            <input
-              ref={inputRef}
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isStreaming ? 'AI is typing...' : 'Ask your coach anything...'}
-              disabled={isStreaming}
-              className="flex-1 px-4 py-3 bg-gray-800 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-neon disabled:opacity-50 text-sm"
-            />
+        <div className="glass-strong border-t border-white/5 px-4 md:px-8 py-4">
+          <div className="flex gap-3 max-w-4xl mx-auto items-end">
+            <div className="flex-1 relative">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isStreaming ? 'AI Coach is typing...' : 'Ask your coach anything...'}
+                disabled={isStreaming}
+                className="input-glass input-glass-purple w-full pr-12"
+              />
+              {!isStreaming && input.trim() && (
+                <button
+                  onClick={() => sendMessage()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center hover:bg-purple-500/30 transition"
+                >
+                  <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <button
               onClick={() => sendMessage()}
               disabled={isStreaming || !input.trim()}
-              className="px-6 py-3 bg-neon text-dark font-bold rounded-xl hover:bg-green-400 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              className="btn-purple py-3.5 px-6 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isStreaming ? (
-                <span className="inline-block w-4 h-4 border-2 border-dark border-t-transparent rounded-full animate-spin" />
+                <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 'Send'
               )}
             </button>
           </div>
+          <p className="text-center text-[10px] text-gray-600 mt-2">
+            AI Coach can make mistakes. Verify important strategies.
+          </p>
         </div>
       </div>
     </div>
