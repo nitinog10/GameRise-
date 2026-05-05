@@ -32,6 +32,7 @@ router.get('/:id', authMiddleware, async (req, res, next) => {
 router.post('/', authMiddleware, adminMiddleware, async (req, res, next) => {
   try {
     const tournament = await Tournament.create({ ...req.body, createdBy: req.user.userId });
+    fetch(`${process.env.BACKEND_URL || 'http://localhost:5000'}/api/webhooks/discord-notify`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ eventType:'tournament_created', message:`New tournament: ${tournament.name}` }) }).catch(()=>{});
     res.status(201).json({ tournament });
   } catch (e) { next(e); }
 });
@@ -79,7 +80,7 @@ router.get('/:id/leaderboard', authMiddleware, async (req, res, next) => {
 });
 
 router.put('/:id/status', authMiddleware, adminMiddleware, async (req,res,next)=>{
-  try { await Tournament.update(req.params.id, { status: req.body.status, results: req.body.results || undefined }); res.json({ success:true }); }
+  try { await Tournament.update(req.params.id, { status: req.body.status, results: req.body.results || undefined }); if(req.body.status==='completed' && (req.body.results||[])[0]) fetch(`${process.env.BACKEND_URL || 'http://localhost:5000'}/api/webhooks/discord-notify`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ eventType:'tournament_winner', message:`Winner announced for tournament ${req.params.id}` }) }).catch(()=>{}); res.json({ success:true }); }
   catch(e){ next(e);} 
 });
 

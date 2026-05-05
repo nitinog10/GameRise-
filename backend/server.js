@@ -10,6 +10,8 @@ const goalsRoutes = require('./routes/goals');
 const tournamentsRoutes = require('./routes/tournaments');
 const leaderboardRoutes = require('./routes/leaderboard');
 const profileRoutes = require('./routes/profile');
+const communityRoutes = require('./routes/community');
+const webhookRoutes = require('./routes/webhooks');
 const errorHandler = require('./middleware/errorHandler');
 const { loadGameData } = require('./services/gameContext');
 
@@ -35,6 +37,8 @@ app.use('/api/goals', goalsRoutes);
 app.use('/api/tournaments', tournamentsRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/community', communityRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 app.use(errorHandler);
 
