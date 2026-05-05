@@ -4,38 +4,39 @@ module.exports = {
     extend: {
       colors: {
         dark: {
-          DEFAULT: '#0a0a0f',
-          card: '#12121a',
-          surface: '#1a1a24'
+          DEFAULT: '#08080c',
+          50: '#0e0e14',
+          100: '#12121a',
+          200: '#1a1a24',
+          300: '#22222e',
+          400: '#2a2a38',
         },
         neon: {
           DEFAULT: '#00ff88',
-          dim: '#00cc6a'
+          dark: '#00cc6a',
+          light: '#33ffaa',
+        },
+        accent: {
+          purple: '#8b5cf6',
+          blue: '#3b82f6',
+          pink: '#ec4899',
         }
       },
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+      },
       animation: {
-        'float': 'float 3s ease-in-out infinite',
-        'pulse-neon': 'pulse-neon 2s ease-in-out infinite',
-        'pulse-purple': 'pulse-purple 2s ease-in-out infinite',
-        'gradient': 'gradient-shift 4s ease infinite',
-        'slide-up': 'slide-up 0.6s ease-out forwards',
-        'slide-in-left': 'slide-in-left 0.6s ease-out forwards',
-        'slide-in-right': 'slide-in-right 0.6s ease-out forwards',
-        'fade-in': 'fade-in 0.5s ease-out forwards',
-        'scale-in': 'scale-in 0.4s ease-out forwards',
-        'shimmer': 'shimmer 2s infinite',
-        'glow-border': 'glow-border 2s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'fade-up': 'fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'fade-in': 'fadeIn 0.6s ease forwards',
+        'scale-in': 'scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+        'spin-slow': 'spin 3s linear infinite',
+        'gradient': 'gradient 8s ease infinite',
+        'typing': 'typing 1.4s ease-in-out infinite',
       },
-      backdropBlur: {
-        xs: '2px',
-      },
-      boxShadow: {
-        'neon': '0 0 10px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.1)',
-        'neon-lg': '0 0 20px rgba(0, 255, 136, 0.4), 0 0 60px rgba(0, 255, 136, 0.15)',
-        'purple': '0 0 10px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1)',
-        'purple-lg': '0 0 20px rgba(139, 92, 246, 0.4), 0 0 60px rgba(139, 92, 246, 0.15)',
-        'glass': '0 8px 32px rgba(0, 0, 0, 0.3)',
-      }
     }
   },
   plugins: []

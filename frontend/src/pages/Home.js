@@ -1,172 +1,157 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
-// Floating particles background
-function Particles() {
-  const [particles] = useState(() =>
-    Array.from({ length: 30 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      delay: Math.random() * 10,
-      duration: 8 + Math.random() * 12,
-      size: 2 + Math.random() * 4,
-      opacity: 0.1 + Math.random() * 0.3
-    }))
-  );
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map(p => (
-        <div
-          key={p.id}
-          className="absolute rounded-full"
-          style={{
-            left: `${p.left}%`,
-            bottom: '-10px',
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            background: p.id % 3 === 0 ? '#00ff88' : p.id % 3 === 1 ? '#8b5cf6' : '#3b82f6',
-            opacity: p.opacity,
-            animation: `particle-float ${p.duration}s linear ${p.delay}s infinite`
-          }}
-        />
-      ))}
-    </div>
-  );
-}
+import Navigation from '../components/Navigation';
 
 const Home = () => {
-  const { user, logout } = useAuth();
-  const [loaded, setLoaded] = useState(false);
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setLoaded(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
+
+  const features = [
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      ),
+      title: 'Game Knowledge Hub',
+      desc: 'Deep-dive into Valorant, BGMI, and CODM with strategies, maps, roles, and pro tips.',
+      badge: '3 Games',
+      badgeClass: 'badge-green',
+      link: '/games',
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      ),
+      title: 'AI Esports Coach',
+      desc: 'Personalized coaching powered by AI. Get real-time strategies, aim drills, and mental game tips.',
+      badge: 'AI Powered',
+      badgeClass: 'badge-purple',
+      link: '/ai-coach',
+    },
+    {
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      title: 'India-First',
+      desc: 'Built for Indian gamers. BGMI tournaments, VCT India, Skyesports — we know the scene.',
+      badge: 'Local',
+      badgeClass: 'badge-blue',
+      link: '/games',
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-dark bg-hero-gradient bg-grid relative overflow-hidden">
-      <Particles />
+    <div className="min-h-screen bg-dark relative overflow-hidden">
+      {/* Background orbs */}
+      <div className="orb w-[500px] h-[500px] bg-purple-600/[0.07] top-[-10%] left-[-5%]" />
+      <div className="orb w-[400px] h-[400px] bg-neon/[0.04] bottom-[10%] right-[-5%]" style={{ animationDelay: '-7s' }} />
+      <div className="orb w-[300px] h-[300px] bg-blue-600/[0.05] top-[40%] left-[50%]" style={{ animationDelay: '-14s' }} />
 
-      {/* Decorative orbs */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-neon/5 rounded-full blur-3xl" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-600/5 rounded-full blur-3xl" />
+      <Navigation />
 
-      {/* Navigation */}
-      <nav className={`relative z-10 flex items-center justify-between px-6 md:px-12 py-5 transition-all duration-700 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon to-purple-600 flex items-center justify-center font-bold text-dark text-lg">
-            G
+      {/* Hero */}
+      <section className="relative z-10 pt-32 pb-20 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Status badge */}
+          <div className={`opacity-0 ${mounted ? 'animate-fade-up' : ''}`}>
+            <span className="badge badge-green mb-6 inline-flex">
+              <span className="w-1.5 h-1.5 rounded-full bg-neon animate-pulse-soft" />
+              AI-Powered Esports Platform
+            </span>
           </div>
-          <span className="text-xl font-bold text-white">GameRise</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-gray-400 text-sm hidden sm:block">
-            Welcome, <span className="text-neon font-medium">{user?.username}</span>
-          </span>
-          <button
-            onClick={logout}
-            className="btn-ghost text-sm py-2 px-4"
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
 
-      {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center justify-center px-6 pt-12 md:pt-20 pb-20">
-        {/* Badge */}
-        <div className={`animate-slide-up opacity-0 stagger-1 mb-6`}>
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium text-neon border border-neon/20">
-            <span className="w-2 h-2 rounded-full bg-neon animate-pulse" />
-            AI-Powered Esports Platform
-          </span>
-        </div>
+          {/* Headline */}
+          <h1 className={`opacity-0 ${mounted ? 'animate-fade-up delay-100' : ''} text-5xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.1]`}>
+            <span className="text-white">Level Up Your</span>
+            <br />
+            <span className="bg-gradient-to-r from-neon via-emerald-300 to-accent-purple bg-clip-text text-transparent bg-[length:200%_200%] animate-gradient">
+              Esports Career
+            </span>
+          </h1>
 
-        {/* Title */}
-        <h1 className={`animate-slide-up opacity-0 stagger-2 text-5xl md:text-7xl lg:text-8xl font-black text-center leading-tight`}>
-          <span className="text-white">Level Up Your</span>
-          <br />
-          <span className="bg-gradient-to-r from-neon via-blue-400 to-purple-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_200%]">
-            Esports Career
-          </span>
-        </h1>
+          {/* Subtitle */}
+          <p className={`opacity-0 ${mounted ? 'animate-fade-up delay-200' : ''} mt-6 text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed`}>
+            Your AI-powered companion for competitive gaming. Get personalized coaching,
+            explore game strategies, and dominate the leaderboard.
+          </p>
 
-        {/* Subtitle */}
-        <p className={`animate-slide-up opacity-0 stagger-3 mt-6 text-lg md:text-xl text-gray-400 text-center max-w-2xl leading-relaxed`}>
-          Your AI-powered companion for competitive gaming. Get personalized coaching,
-          explore game strategies, and dominate the leaderboard.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className={`animate-slide-up opacity-0 stagger-4 mt-10 flex flex-col sm:flex-row gap-4`}>
-          <Link to="/games" className="btn-neon text-center text-lg px-10 py-4 flex items-center justify-center gap-3">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Browse Games
-          </Link>
-          <Link to="/ai-coach" className="btn-purple text-center text-lg px-10 py-4 flex items-center justify-center gap-3">
-            <span className="text-xl">🤖</span>
-            AI Coach
-          </Link>
-        </div>
-
-        {/* Feature Cards */}
-        <div className={`animate-slide-up opacity-0 stagger-5 mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full`}>
-          <div className="glass-card rounded-2xl p-6 group">
-            <div className="w-12 h-12 rounded-xl bg-neon/10 flex items-center justify-center mb-4 group-hover:bg-neon/20 transition">
-              <svg className="w-6 h-6 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          {/* CTAs */}
+          <div className={`opacity-0 ${mounted ? 'animate-fade-up delay-300' : ''} mt-10 flex flex-col sm:flex-row gap-3 justify-center`}>
+            <Link to="/games" className="btn-primary text-base px-8 py-3.5">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2">Game Knowledge Hub</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Deep dive into Valorant, BGMI, CODM with strategies, maps, roles, and pro tips.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 group">
-            <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition">
-              <span className="text-2xl">🤖</span>
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2">AI Esports Coach</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Get personalized coaching from our AI that knows your game inside out. Real-time streaming responses.
-            </p>
-          </div>
-
-          <div className="glass-card rounded-2xl p-6 group">
-            <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition">
-              <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              Browse Games
+            </Link>
+            <Link to="/ai-coach" className="btn-secondary text-base px-8 py-3.5">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-            </div>
-            <h3 className="text-white font-bold text-lg mb-2">India-First</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Built for Indian gamers. BGMI tournaments, VCT India, Skyesports — we know the scene.
-            </p>
+              AI Coach
+            </Link>
           </div>
         </div>
+      </section>
 
-        {/* Stats */}
-        <div className={`animate-slide-up opacity-0 stagger-6 mt-16 flex gap-8 md:gap-16`}>
-          <div className="text-center">
-            <div className="text-3xl font-black neon-text">3+</div>
-            <div className="text-gray-500 text-sm mt-1">Games</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-black neon-text-purple">AI</div>
-            <div className="text-gray-500 text-sm mt-1">Powered</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-black text-blue-400">24/7</div>
-            <div className="text-gray-500 text-sm mt-1">Coaching</div>
+      {/* Feature Cards */}
+      <section className="relative z-10 px-6 pb-24">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {features.map((f, i) => (
+              <Link
+                key={i}
+                to={f.link}
+                className={`opacity-0 ${mounted ? 'animate-fade-up' : ''} group`}
+                style={{ animationDelay: `${400 + i * 100}ms` }}
+              >
+                <div className="glass-card rounded-xl p-6 h-full">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-white/[0.05] flex items-center justify-center text-gray-400 group-hover:text-neon transition-colors">
+                      {f.icon}
+                    </div>
+                    <span className={`badge ${f.badgeClass}`}>{f.badge}</span>
+                  </div>
+                  <h3 className="text-white font-semibold text-base mb-2 group-hover:text-neon transition-colors">
+                    {f.title}
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {f.desc}
+                  </p>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Stats Bar */}
+      <section className="relative z-10 px-6 pb-20">
+        <div className="max-w-3xl mx-auto">
+          <div className="glass rounded-xl p-6 flex items-center justify-around divide-x divide-white/[0.06]">
+            <div className="text-center px-6">
+              <div className="text-2xl font-bold text-neon">3+</div>
+              <div className="text-xs text-gray-500 mt-1">Games</div>
+            </div>
+            <div className="text-center px-6">
+              <div className="text-2xl font-bold text-accent-purple">AI</div>
+              <div className="text-xs text-gray-500 mt-1">Powered</div>
+            </div>
+            <div className="text-center px-6">
+              <div className="text-2xl font-bold text-accent-blue">24/7</div>
+              <div className="text-xs text-gray-500 mt-1">Coaching</div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
