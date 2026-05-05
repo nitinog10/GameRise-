@@ -69,6 +69,7 @@ const Dashboard = () => {
 
     <div className="bg-black/20 rounded-xl p-4 mb-6"><h3 className="mb-3">My Tournaments</h3>{myTournaments.map(t=><div key={t.tournamentId} className="border-t border-white/10 py-2 flex justify-between"><span>{t.name}</span><span>{t.status}</span></div>)}</div>
 
+
     {analysis && <div className="bg-black/30 rounded-xl p-4"><h3 className="mb-2">Match Analysis</h3><p><strong>What went well:</strong> {analysis.wentWell}</p><p><strong>What to improve:</strong> {analysis.improve}</p><p><strong>Drill to try:</strong> {analysis.drill}</p></div>}
   </div>
 
