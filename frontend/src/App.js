@@ -77,6 +77,7 @@ function App() {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/ai-coach"
             element={
