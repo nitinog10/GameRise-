@@ -4,6 +4,14 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const gamesRoutes = require('./routes/games');
 const aiCoachRoutes = require('./routes/aiCoach');
+const matchesRoutes = require('./routes/matches');
+const statsRoutes = require('./routes/stats');
+const goalsRoutes = require('./routes/goals');
+const tournamentsRoutes = require('./routes/tournaments');
+const leaderboardRoutes = require('./routes/leaderboard');
+const profileRoutes = require('./routes/profile');
+const communityRoutes = require('./routes/community');
+const webhookRoutes = require('./routes/webhooks');
 const errorHandler = require('./middleware/errorHandler');
 const { loadGameData } = require('./services/gameContext');
 
@@ -23,6 +31,14 @@ app.get('/api/test', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/games', gamesRoutes);
 app.use('/api/ai-coach', aiCoachRoutes);
+app.use('/api/matches', matchesRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/goals', goalsRoutes);
+app.use('/api/tournaments', tournamentsRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/community', communityRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 app.use(errorHandler);
 

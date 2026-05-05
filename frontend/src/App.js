@@ -8,6 +8,16 @@ import Home from './pages/Home';
 import GamesList from './pages/GamesList';
 import GameDetail from './pages/GameDetail';
 import AiCoach from './pages/AiCoach';
+import Dashboard from './pages/Dashboard';
+import Tournaments from './pages/Tournaments';
+import TournamentDetail from './pages/TournamentDetail';
+import AdminTournaments from './pages/AdminTournaments';
+import PlayerProfile from './pages/PlayerProfile';
+import ProfileSettings from './pages/ProfileSettings';
+import Community from './pages/Community';
+import CommunityTeams from './pages/CommunityTeams';
+import CommunityTips from './pages/CommunityTips';
+import CommunityClips from './pages/CommunityClips';
 
 function App() {
   return (
@@ -40,6 +50,47 @@ function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/tournaments"
+            element={
+              <PrivateRoute>
+                <Tournaments />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/tournaments/:id"
+            element={
+              <PrivateRoute>
+                <TournamentDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/tournaments"
+            element={
+              <PrivateRoute>
+                <AdminTournaments />
+              </PrivateRoute>
+            }
+          />
+
+          <Route path="/player/:username" element={<PrivateRoute><PlayerProfile /></PrivateRoute>} />
+          <Route path="/settings/profile" element={<PrivateRoute><ProfileSettings /></PrivateRoute>} />
+
+          <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
+          <Route path="/community/teams" element={<PrivateRoute><CommunityTeams /></PrivateRoute>} />
+          <Route path="/community/tips" element={<PrivateRoute><CommunityTips /></PrivateRoute>} />
+          <Route path="/community/clips" element={<PrivateRoute><CommunityClips /></PrivateRoute>} />
           <Route
             path="/ai-coach"
             element={
