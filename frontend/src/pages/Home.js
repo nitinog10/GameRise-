@@ -11,12 +11,18 @@ const Home = () => {
       <p className="text-2xl text-gray-300 mb-8">Esports Career Platform</p>
       <div className="text-center space-y-4">
         <p className="text-gray-400 mb-4">Welcome, {user?.username}!</p>
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4 justify-center flex-wrap">
           <Link
             to="/games"
             className="px-8 py-3 bg-neon text-dark font-bold rounded-lg hover:bg-green-400 transition"
           >
             Browse Games
+          </Link>
+          <Link
+            to="/ai-coach"
+            className="px-8 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition"
+          >
+            🤖 AI Coach
           </Link>
           <button
             onClick={logout}

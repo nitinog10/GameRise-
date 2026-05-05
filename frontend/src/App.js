@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Home from './pages/Home';
 import GamesList from './pages/GamesList';
 import GameDetail from './pages/GameDetail';
+import AiCoach from './pages/AiCoach';
 
 function App() {
   return (
@@ -36,6 +37,14 @@ function App() {
             element={
               <PrivateRoute>
                 <GameDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/ai-coach"
+            element={
+              <PrivateRoute>
+                <AiCoach />
               </PrivateRoute>
             }
           />
