@@ -12,6 +12,8 @@ import Dashboard from './pages/Dashboard';
 import Tournaments from './pages/Tournaments';
 import TournamentDetail from './pages/TournamentDetail';
 import AdminTournaments from './pages/AdminTournaments';
+import PlayerProfile from './pages/PlayerProfile';
+import ProfileSettings from './pages/ProfileSettings';
 
 function App() {
   return (
@@ -78,6 +80,8 @@ function App() {
             }
           />
 
+          <Route path="/player/:username" element={<PrivateRoute><PlayerProfile /></PrivateRoute>} />
+          <Route path="/settings/profile" element={<PrivateRoute><ProfileSettings /></PrivateRoute>} />
           <Route
             path="/ai-coach"
             element={

@@ -9,6 +9,7 @@ const statsRoutes = require('./routes/stats');
 const goalsRoutes = require('./routes/goals');
 const tournamentsRoutes = require('./routes/tournaments');
 const leaderboardRoutes = require('./routes/leaderboard');
+const profileRoutes = require('./routes/profile');
 const errorHandler = require('./middleware/errorHandler');
 const { loadGameData } = require('./services/gameContext');
 
@@ -33,6 +34,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/goals', goalsRoutes);
 app.use('/api/tournaments', tournamentsRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.use(errorHandler);
 
