@@ -15,6 +15,8 @@ function loadGameData() {
     for (const file of files) {
       const filePath = path.join(gamesDir, file);
       const gameData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      // Skip files that don't have a top-level slug (e.g. placeholder.json)
+      if (!gameData.slug || !gameData.name) continue;
       gamesData[gameData.slug] = gameData;
     }
 
