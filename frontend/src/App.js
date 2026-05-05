@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import GamesList from './pages/GamesList';
 import GameDetail from './pages/GameDetail';
 import AiCoach from './pages/AiCoach';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -37,6 +38,14 @@ function App() {
             element={
               <PrivateRoute>
                 <GameDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
               </PrivateRoute>
             }
           />
