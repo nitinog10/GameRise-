@@ -7,6 +7,8 @@ const aiCoachRoutes = require('./routes/aiCoach');
 const matchesRoutes = require('./routes/matches');
 const statsRoutes = require('./routes/stats');
 const goalsRoutes = require('./routes/goals');
+const tournamentsRoutes = require('./routes/tournaments');
+const leaderboardRoutes = require('./routes/leaderboard');
 const errorHandler = require('./middleware/errorHandler');
 const { loadGameData } = require('./services/gameContext');
 
@@ -29,6 +31,8 @@ app.use('/api/ai-coach', aiCoachRoutes);
 app.use('/api/matches', matchesRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/goals', goalsRoutes);
+app.use('/api/tournaments', tournamentsRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
 
 app.use(errorHandler);
 

@@ -10,16 +10,19 @@ const Dashboard = () => {
   const [goals, setGoals] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [analysis, setAnalysis] = useState(null);
+
+  const [myTournaments, setMyTournaments] = useState([]);
   const [form, setForm] = useState({ gameSlug: 'valorant', result: 'win', kills: 0, deaths: 0, assists: 0, accuracy: 50, duration: 20, notes: '' });
 
   const fetchAll = async () => {
-    const [s, c, m, g] = await Promise.all([
+    const [s, c, m, g, t] = await Promise.all([
       api.get('/api/stats/summary'),
       api.get('/api/stats/chart?range=30d'),
       api.get('/api/matches?limit=20'),
-      api.get('/api/goals?limit=5')
+      api.get('/api/goals?limit=5'),
+      api.get('/api/tournaments')
     ]);
-    setSummary(s.data); setChartData(c.data.chart || []); setMatches(m.data.matches || []); setGoals(g.data.goals || []);
+    setSummary(s.data); setChartData(c.data.chart || []); setMatches(m.data.matches || []); setGoals(g.data.goals || []); setMyTournaments((t.data.tournaments||[]).filter(x=>(x.registeredPlayers||[]).includes(localStorage.getItem('userId')||'')));
   };
 
   useEffect(() => { fetchAll().catch(console.error); }, []);
@@ -63,6 +66,9 @@ const Dashboard = () => {
     <div className="bg-black/20 rounded-xl p-4 mb-6 overflow-x-auto"><h3 className="mb-3">Recent Matches</h3><table className="w-full text-sm"><thead><tr className="text-gray-400"><th>Game</th><th>Result</th><th>KDA</th><th>Date</th><th></th></tr></thead><tbody>{matches.map(m=><tr key={m.matchId} className="border-t border-white/10"><td>{m.gameSlug}</td><td><span className={m.result==='win'?'text-green-400':'text-red-400'}>{m.result==='win'?'W':'L'}</span></td><td>{m.kills}/{m.deaths}/{m.assists}</td><td>{new Date(m.playedAt).toLocaleDateString()}</td><td><button onClick={()=>runAnalysis(m.matchId)} className="text-neon">Analyze</button></td></tr>)}</tbody></table></div>
 
     <div className="bg-black/20 rounded-xl p-4 mb-6"><h3 className="mb-3">Daily Goals</h3>{goals[0]?.goals?.map((g, i) => <div key={i} className="mb-3"><div className="flex justify-between text-sm"><span>{g.title}</span><span>{g.current}/{g.target} {g.unit}</span></div><div className="w-full bg-[#2a2a38] h-2 rounded"><div className="bg-[#00ff88] h-2 rounded" style={{width:`${Math.min(100, (g.current/g.target)*100 || 0)}%`}} /></div></div>) || <p className="text-gray-400">No goals yet.</p>}</div>
+
+    <div className="bg-black/20 rounded-xl p-4 mb-6"><h3 className="mb-3">My Tournaments</h3>{myTournaments.map(t=><div key={t.tournamentId} className="border-t border-white/10 py-2 flex justify-between"><span>{t.name}</span><span>{t.status}</span></div>)}</div>
+
 
     {analysis && <div className="bg-black/30 rounded-xl p-4"><h3 className="mb-2">Match Analysis</h3><p><strong>What went well:</strong> {analysis.wentWell}</p><p><strong>What to improve:</strong> {analysis.improve}</p><p><strong>Drill to try:</strong> {analysis.drill}</p></div>}
   </div>
