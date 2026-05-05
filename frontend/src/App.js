@@ -8,6 +8,10 @@ import Home from './pages/Home';
 import GamesList from './pages/GamesList';
 import GameDetail from './pages/GameDetail';
 import AiCoach from './pages/AiCoach';
+import Dashboard from './pages/Dashboard';
+import Tournaments from './pages/Tournaments';
+import TournamentDetail from './pages/TournamentDetail';
+import AdminTournaments from './pages/AdminTournaments';
 
 function App() {
   return (
@@ -37,6 +41,39 @@ function App() {
             element={
               <PrivateRoute>
                 <GameDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/tournaments"
+            element={
+              <PrivateRoute>
+                <Tournaments />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/tournaments/:id"
+            element={
+              <PrivateRoute>
+                <TournamentDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/tournaments"
+            element={
+              <PrivateRoute>
+                <AdminTournaments />
               </PrivateRoute>
             }
           />
