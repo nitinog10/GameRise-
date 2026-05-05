@@ -18,6 +18,7 @@ import Community from './pages/Community';
 import CommunityTeams from './pages/CommunityTeams';
 import CommunityTips from './pages/CommunityTips';
 import CommunityClips from './pages/CommunityClips';
+import IntegrationSettings from './pages/IntegrationSettings';
 
 function App() {
   return (
@@ -91,6 +92,7 @@ function App() {
           <Route path="/community/teams" element={<PrivateRoute><CommunityTeams /></PrivateRoute>} />
           <Route path="/community/tips" element={<PrivateRoute><CommunityTips /></PrivateRoute>} />
           <Route path="/community/clips" element={<PrivateRoute><CommunityClips /></PrivateRoute>} />
+          <Route path="/settings/integrations" element={<PrivateRoute><IntegrationSettings /></PrivateRoute>} />
           <Route
             path="/ai-coach"
             element={

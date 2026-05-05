@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { io } from 'socket.io-client';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import Navigation from '../components/Navigation';
 import api from '../utils/axios';
@@ -12,6 +13,7 @@ const Dashboard = () => {
   const [analysis, setAnalysis] = useState(null);
 
   const [myTournaments, setMyTournaments] = useState([]);
+  const [liveMatch, setLiveMatch] = useState(null);
   const [form, setForm] = useState({ gameSlug: 'valorant', result: 'win', kills: 0, deaths: 0, assists: 0, accuracy: 50, duration: 20, notes: '' });
 
   const fetchAll = async () => {
@@ -25,7 +27,7 @@ const Dashboard = () => {
     setSummary(s.data); setChartData(c.data.chart || []); setMatches(m.data.matches || []); setGoals(g.data.goals || []); setMyTournaments((t.data.tournaments||[]).filter(x=>(x.registeredPlayers||[]).includes(localStorage.getItem('userId')||'')));
   };
 
-  useEffect(() => { fetchAll().catch(console.error); }, []);
+  useEffect(() => { fetchAll().catch(console.error); const socket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000'); const userId = JSON.parse(atob((localStorage.getItem('token')||'.').split('.')[1]||'e30=')).userId; socket.emit('register_user', userId); socket.on('observer_update', (payload) => { if (payload.match?.liveData) setLiveMatch(payload.match.liveData); fetchAll(); }); return () => socket.close(); }, []);
 
   const perGame = useMemo(() => {
     const map = {};
@@ -51,6 +53,8 @@ const Dashboard = () => {
 
   return <div className="min-h-screen bg-[#1a1a24] text-white"><Navigation /><div className="max-w-7xl mx-auto pt-24 px-4 pb-10">
     <div className="flex justify-between items-center mb-4"><h1 className="text-2xl font-bold">Player Dashboard</h1><button className="btn-primary" onClick={()=>setShowModal(true)}>Log Match</button></div>
+    {liveMatch && <div className="bg-[#102019] border border-[#00ff88]/40 rounded-xl p-4 mb-4"><div className="animate-pulse text-[#00ff88] text-sm">Match in progress</div><div className="grid grid-cols-4 gap-2 mt-2 text-sm"><div>Kills: {liveMatch.kills}</div><div>Placement: {liveMatch.placement}</div><div>Zone: {liveMatch.zone}</div><div>Team HP: {liveMatch.teamHealth}</div></div></div>}
+
     <div className="grid md:grid-cols-4 gap-4 mb-6">{[
       ['Total matches', summary.totalMatches || 0],
       ['Win rate', `${(summary.winRate || 0).toFixed(1)}%`],

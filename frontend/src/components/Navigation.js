@@ -21,6 +21,7 @@ const Navigation = ({ showAuth = true }) => {
     { path: '/dashboard', label: 'Dashboard', icon: 'M3 3h7v7H3V3zm11 0h7v4h-7V3zM3 14h7v7H3v-7zm11-3h7v10h-7V11z' },
     { path: '/tournaments', label: 'Tournaments', icon: 'M9 2l2 2 2-2 2 2h3v4a5 5 0 01-5 5h-2a5 5 0 01-5-5V4h3l2-2zM5 20h14' },
     { path: '/settings/profile', label: 'Profile', icon: 'M5.121 17.804A9 9 0 1118.88 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z' },
+    { path: '/settings/integrations', label: 'Integrations', icon: 'M12 4v16m8-8H4' },
     { path: '/community', label: `Community ${unread ? `(${unread})` : ''}`, icon: 'M17 20h5V4H2v16h5m10 0v-6a3 3 0 10-6 0v6m6 0H7' },
     { path: '/ai-coach', label: 'AI Coach', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
   ];
