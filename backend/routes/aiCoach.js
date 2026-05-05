@@ -1,14 +1,14 @@
 const express = require('express');
-const Anthropic = require('@anthropic-ai/sdk');
+const https = require('https');
 const { authMiddleware } = require('../middleware/auth');
 const { buildGameContext } = require('../services/gameContext');
 const CoachSession = require('../models/CoachSession');
 
 const router = express.Router();
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-});
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 const SYSTEM_PROMPT_BASE = `You are GameRise AI Coach, an expert esports analyst and coach for competitive gaming in India.
 You help players improve their skills, tactics, and mental game.
@@ -31,21 +31,26 @@ router.post('/', authMiddleware, async (req, res, next) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
+    if (!OPENROUTER_API_KEY) {
+      return res.status(500).json({ error: 'OpenRouter API key not configured' });
+    }
+
     // Build game context
     const gameContext = buildGameContext(gameSlug || null, message);
     const systemPrompt = `${SYSTEM_PROMPT_BASE}\n\n${gameContext}`;
 
-    // Build messages array for Claude
-    const claudeMessages = (conversationHistory || []).map(msg => ({
-      role: msg.role,
-      content: msg.content
-    }));
-
-    // Add the current user message
-    claudeMessages.push({
-      role: 'user',
-      content: message
-    });
+    // Build messages array for OpenRouter (OpenAI-compatible format)
+    const apiMessages = [
+      { role: 'system', content: systemPrompt },
+      ...(conversationHistory || []).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      })),
+      {
+        role: 'user',
+        content: message
+      }
+    ];
 
     // Set up SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
@@ -53,14 +58,15 @@ router.post('/', authMiddleware, async (req, res, next) => {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
 
-    // Create or update session in background
+    // Track session for DB persistence
     let currentSessionId = sessionId;
+    let fullResponse = '';
+
     const saveSession = async (assistantResponse) => {
       try {
         if (!currentSessionId) {
           const session = await CoachSession.create({ userId, gameSlug });
           currentSessionId = session.sessionId;
-          // Send session ID to client
           res.write(`data: ${JSON.stringify({ type: 'session', sessionId: currentSessionId })}\n\n`);
         }
 
@@ -80,41 +86,90 @@ router.post('/', authMiddleware, async (req, res, next) => {
       }
     };
 
-    let fullResponse = '';
+    // Build request to OpenRouter
+    const requestBody = JSON.stringify({
+      model: OPENROUTER_MODEL,
+      messages: apiMessages,
+      stream: true,
+      max_tokens: 1024
+    });
 
-    try {
-      // Stream from Claude API
-      const stream = anthropic.messages.stream({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: claudeMessages
+    const url = new URL(OPENROUTER_API_URL);
+
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://gamerise.app',
+        'X-Title': 'GameRise AI Coach',
+        'Content-Length': Buffer.byteLength(requestBody)
+      }
+    };
+
+    const apiReq = https.request(options, (apiRes) => {
+      let buffer = '';
+
+      apiRes.on('data', (chunk) => {
+        buffer += chunk.toString();
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith('data: ')) continue;
+
+          const data = trimmed.slice(6);
+          if (data === '[DONE]') {
+            res.write(`data: ${JSON.stringify({ type: 'done', fullResponse })}\n\n`);
+            res.end();
+            saveSession(fullResponse);
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices?.[0]?.delta?.content;
+
+            if (content) {
+              fullResponse += content;
+              res.write(`data: ${JSON.stringify({ type: 'token', text: content })}\n\n`);
+            }
+          } catch (e) {
+            // Ignore parse errors for incomplete chunks
+          }
+        }
       });
 
-      stream.on('text', (text) => {
-        fullResponse += text;
-        res.write(`data: ${JSON.stringify({ type: 'token', text })}\n\n`);
+      apiRes.on('end', () => {
+        // If we haven't sent 'done' yet (e.g., no [DONE] marker received)
+        if (fullResponse) {
+          res.write(`data: ${JSON.stringify({ type: 'done', fullResponse })}\n\n`);
+          res.end();
+          saveSession(fullResponse);
+        } else {
+          res.write(`data: ${JSON.stringify({ type: 'error', error: 'Empty response from AI service' })}\n\n`);
+          res.end();
+        }
       });
 
-      stream.on('end', async () => {
-        res.write(`data: ${JSON.stringify({ type: 'done', fullResponse })}\n\n`);
+      apiRes.on('error', (error) => {
+        console.error('OpenRouter response error:', error);
+        res.write(`data: ${JSON.stringify({ type: 'error', error: 'AI service response error' })}\n\n`);
         res.end();
-
-        // Save to DB in background
-        await saveSession(fullResponse);
       });
+    });
 
-      stream.on('error', (error) => {
-        console.error('Claude stream error:', error);
-        res.write(`data: ${JSON.stringify({ type: 'error', error: 'AI service error' })}\n\n`);
-        res.end();
-      });
-
-    } catch (aiError) {
-      console.error('Claude API error:', aiError.message);
+    apiReq.on('error', (error) => {
+      console.error('OpenRouter request error:', error.message);
       res.write(`data: ${JSON.stringify({ type: 'error', error: 'Failed to connect to AI service' })}\n\n`);
       res.end();
-    }
+    });
+
+    apiReq.write(requestBody);
+    apiReq.end();
 
   } catch (error) {
     next(error);
