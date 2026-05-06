@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== BASE ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #1a1a24 transparent;
+}
+*::-webkit-scrollbar       { width: 5px; }
+*::-webkit-scrollbar-track  { background: transparent; }
+*::-webkit-scrollbar-thumb  { background: #1a1a24; border-radius: 10px; }
+*::-webkit-scrollbar-thumb:hover { background: #2a2a38; }
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+
+body {
+  background: #08080c;
+  color: #e2e8f0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection { background: rgba(0, 255, 136, 0.2); color: #fff; }
+
+/* ===== KEYFRAMES ===== */
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(30px, -20px) scale(1.05); }
+  50%  { transform: translate(-10px, 20px) scale(0.95); }
+  75%  { transform: translate(-30px, -10px) scale(1.02); }
+}
+
+@keyframes gradient {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===== GLASS SURFACES ===== */
+.glass {
+  background: rgba(14, 14, 20, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-card {
+  background: rgba(18, 18, 26, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-card:hover {
+  background: rgba(18, 18, 26, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 24px; background: #00ff88; color: #08080c;
+  font-weight: 600; font-size: 14px; border-radius: 10px;
+  transition: all 0.2s ease; position: relative; overflow: hidden;
+}
+.btn-primary:hover { background: #33ffaa; box-shadow: 0 0 24px rgba(0,255,136,0.25); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 24px; background: rgba(139,92,246,0.15); color: #a78bfa;
+  font-weight: 600; font-size: 14px; border-radius: 10px;
+  border: 1px solid rgba(139,92,246,0.2); transition: all 0.2s ease;
+}
+.btn-secondary:hover { background: rgba(139,92,246,0.25); color: #c4b5fd; transform: translateY(-1px); }
+
+/* ===== INPUTS ===== */
+.input {
+  width: 100%; padding: 12px 16px;
+  background: rgba(18,18,26,0.6); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; color: #fff; font-size: 14px; transition: all 0.2s ease; outline: none;
+}
+.input::placeholder { color: #4a5568; }
+.input:focus { border-color: rgba(0,255,136,0.3); box-shadow: 0 0 0 3px rgba(0,255,136,0.08); }
+
+/* ===== BADGES ===== */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 6px; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.02em; border: 1px solid transparent;
+}
+.badge-green  { background: rgba(0,255,136,0.08);  color: #00ff88; border-color: rgba(0,255,136,0.15); }
+.badge-red    { background: rgba(239,68,68,0.08);   color: #f87171; border-color: rgba(239,68,68,0.15); }
+.badge-purple { background: rgba(139,92,246,0.08);  color: #a78bfa; border-color: rgba(139,92,246,0.15); }
+.badge-blue   { background: rgba(59,130,246,0.08);  color: #60a5fa; border-color: rgba(59,130,246,0.15); }
+.badge-amber  { background: rgba(245,158,11,0.08);  color: #fbbf24; border-color: rgba(245,158,11,0.15); }
+
+/* ===== ORB BACKGROUNDS ===== */
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); pointer-events: none;
+  animation: orb-drift 20s ease-in-out infinite;
+}
+
+/* ===== TAILWIND OVERRIDES ===== */
+@layer utilities {
+  .text-neon { color: #00ff88; }
+  .bg-dark   { background-color: #08080c; }
+}
