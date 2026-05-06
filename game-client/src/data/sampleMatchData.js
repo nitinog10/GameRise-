@@ -13,15 +13,6 @@
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line no-unused-vars
-const makePacket = (type, payload) => {
-  const typeMap = { MATCH_START: '01', PLAYER_KILL: '02', ZONE_CLOSE: '03', ITEM_PICKUP: '04', MATCH_END: '05', DAMAGE: '06' };
-  const typeHex = typeMap[type] || 'FF';
-  const ts = Date.now().toString(16).padStart(12, '0');
-  const body = btoa(JSON.stringify(payload)).replace(/=/g, '');
-  return `${typeHex}${ts}${body.match(/.{1,2}/g)?.join('') || body}`;
-};
-
 const p = (id, name, team, rank) => ({
   userId: id,
   username: name,

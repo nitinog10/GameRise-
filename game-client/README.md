@@ -50,7 +50,7 @@ npm install
 
 # 2. Start the development server
 npm start
-# → opens http://localhost:3000
+# → opens http://localhost:3001
 ```
 
 > Requires **Node.js ≥ 16**.
