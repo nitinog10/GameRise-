@@ -7,11 +7,22 @@ const DEFAULT_ICONS = {
   codm: '🎯'
 };
 
+/**
+ * Safely coerce a value to a finite number with a fallback for invalid input.
+ * @param {unknown} value
+ * @param {number} [fallback=0]
+ * @returns {number}
+ */
 const toNumber = (value, fallback = 0) => {
   const num = Number(value);
   return Number.isFinite(num) ? num : fallback;
 };
 
+/**
+ * Extract up to two initials from a display name, or ?? when unavailable.
+ * @param {string} name
+ * @returns {string}
+ */
 const getInitials = (name) => {
   const safe = (name || '??').trim();
   if (!safe) return '??';
@@ -46,6 +57,11 @@ const getTokenUser = () => {
   }
 };
 
+/**
+ * Convert game records into a slug-keyed metadata map for UI display.
+ * @param {Array} games
+ * @returns {Record<string, {label: string, color: string, icon: string}>}
+ */
 export const buildGameMeta = (games = []) => {
   const meta = {};
   games.forEach((game, index) => {
@@ -73,6 +89,11 @@ export const resolveGameMeta = (gameMeta, slug, index = 0) => {
   return fallbackMeta(slug, index);
 };
 
+/**
+ * Compute a display score using kills×100 + assists×50 + accuracy×2 + win bonus (250).
+ * @param {object} match
+ * @returns {number}
+ */
 const buildScore = (match) => {
   if (Number.isFinite(match.score)) return Number(match.score);
   const kills = toNumber(match.kills);
@@ -177,6 +198,15 @@ const buildEventsFromMatch = (match, username, meta) => {
   return events.sort((a, b) => a.time - b.time);
 };
 
+/**
+ * Normalize raw match data into viewer-friendly shape with resolved meta, players, and events.
+ * @param {object} match
+ * @param {object} options
+ * @param {object} [options.gameMeta]
+ * @param {object} [options.user]
+ * @param {number} index
+ * @returns {object}
+ */
 export const normalizeMatch = (match, { gameMeta, user } = {}, index = 0) => {
   const slug = match.gameSlug || match.game || 'unknown';
   const meta = resolveGameMeta(gameMeta, slug, index);

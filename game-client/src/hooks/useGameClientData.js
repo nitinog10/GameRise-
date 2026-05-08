@@ -2,6 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { apiFetch } from '../utils/api';
 import { buildGameMeta, getStoredUser, normalizeMatches } from '../utils/matchAdapter';
 
+/**
+ * Load live matches and game metadata for the game client experience.
+ * @param {object} [options]
+ * @param {number} [options.limit=50] - Maximum matches to request
+ * @returns {{matches: Array, games: Array, gameMeta: object, loading: boolean, error: string, reload: Function, user: object}}
+ */
 const useGameClientData = ({ limit = 50 } = {}) => {
   const [matches, setMatches] = useState([]);
   const [games, setGames] = useState([]);

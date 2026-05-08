@@ -1,5 +1,11 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+/**
+ * Fetch JSON from the GameRise API with auth headers and helpful error messages.
+ * @param {string} path - Relative API path (e.g. /api/matches)
+ * @param {RequestInit} [options] - Fetch options (method, headers, body)
+ * @returns {Promise<any>} Parsed JSON response payload
+ */
 export async function apiFetch(path, options = {}) {
   const headers = { ...(options.headers || {}) };
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
