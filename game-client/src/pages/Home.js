@@ -1,13 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
-import { ALL_MATCHES, GAME_META } from '../data/sampleMatchData';
+import useGameClientData from '../hooks/useGameClientData';
+import { resolveGameMeta } from '../utils/matchAdapter';
 
 const Home = () => {
-  const totalMatches = ALL_MATCHES.length;
-  const totalKills   = ALL_MATCHES.reduce((s, m) => s + m.players.reduce((ps, p) => ps + p.kills, 0), 0);
-  const totalPlayers = new Set(ALL_MATCHES.flatMap((m) => m.players.map((p) => p.userId))).size;
-  const gamesTracked = new Set(ALL_MATCHES.map((m) => m.gameSlug)).size;
+  const { matches, gameMeta, loading, error } = useGameClientData({ limit: 50 });
+
+  const totalMatches = matches.length;
+  const totalKills   = matches.reduce((s, m) => s + m.players.reduce((ps, p) => ps + p.kills, 0), 0);
+  const totalPlayers = new Set(matches.flatMap((m) => m.players.map((p) => p.userId))).size;
+  const gamesTracked = new Set(matches.map((m) => m.gameSlug)).size;
 
   return (
     <div className="min-h-screen bg-[#08080c] text-white">
@@ -51,11 +54,21 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="max-w-7xl mx-auto px-4 pb-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          {[
-            { label: 'Matches Tracked', value: totalMatches, icon: '🎮' },
+        {/* Stats row */}
+        <div className="max-w-7xl mx-auto px-4 pb-12">
+          {error && (
+            <div className="glass-card rounded-xl p-4 mb-6 text-sm text-red-300 border border-red-500/20">
+              {error}
+            </div>
+          )}
+          {loading && (
+            <div className="glass-card rounded-xl p-4 mb-6 text-sm text-gray-400">
+              Loading live match data…
+            </div>
+          )}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            {[
+              { label: 'Matches Tracked', value: totalMatches, icon: '🎮' },
             { label: 'Total Kills',     value: totalKills.toLocaleString(), icon: '💀' },
             { label: 'Players',         value: totalPlayers, icon: '👤' },
             { label: 'Games',           value: gamesTracked, icon: '🕹️' },
@@ -114,40 +127,46 @@ const Home = () => {
 
         {/* Recent matches preview */}
         <h2 className="text-xl font-bold mb-4">Recent Matches</h2>
-        <div className="grid md:grid-cols-3 gap-4">
-          {ALL_MATCHES.map((m) => {
-            const meta = GAME_META[m.gameSlug] || {};
-            const mvp  = [...m.players].sort((a, b) => b.score - a.score)[0];
-            return (
-              <Link
-                key={m.matchId}
-                to={`/matches/${m.matchId}`}
-                className="glass-card rounded-xl p-5 block"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-semibold" style={{ color: meta.color }}>
-                    {meta.icon} {meta.label}
-                  </span>
-                  <span className={`badge ${m.result === 'win' ? 'badge-green' : 'badge-red'}`}>
-                    {m.result.toUpperCase()}
-                  </span>
-                </div>
-                <div className="font-bold mb-1">{m.map}</div>
-                <div className="text-xs text-gray-400 mb-3">{m.mode} · {m.duration} min</div>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                    style={{ background: mvp.color + '33', color: mvp.color }}
-                  >
-                    {mvp.avatar}
+        {matches.length === 0 && !loading ? (
+          <div className="glass-card rounded-xl p-6 text-gray-400 text-sm">
+            No matches found yet. Log a match in the main dashboard or connect your game integration to populate data.
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-4">
+            {matches.map((m, index) => {
+              const meta = resolveGameMeta(gameMeta, m.gameSlug, index);
+              const mvp  = [...m.players].sort((a, b) => b.score - a.score)[0];
+              return (
+                <Link
+                  key={m.matchId}
+                  to={`/matches/${m.matchId}`}
+                  className="glass-card rounded-xl p-5 block"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm font-semibold" style={{ color: meta.color }}>
+                      {meta.icon} {meta.label}
+                    </span>
+                    <span className={`badge ${m.result === 'win' ? 'badge-green' : 'badge-red'}`}>
+                      {m.result.toUpperCase()}
+                    </span>
                   </div>
-                  MVP: <span className="text-white">{mvp.username}</span>
-                  <span className="ml-auto">{mvp.kills}K / {mvp.deaths}D</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                  <div className="font-bold mb-1">{m.map}</div>
+                  <div className="text-xs text-gray-400 mb-3">{m.mode} · {m.duration} min</div>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <div
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                      style={{ background: mvp.color + '33', color: mvp.color }}
+                    >
+                      {mvp.avatar}
+                    </div>
+                    MVP: <span className="text-white">{mvp.username}</span>
+                    <span className="ml-auto">{mvp.kills}K / {mvp.deaths}D</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,23 +1,30 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import Navigation from '../components/Navigation';
 import MatchTimeline from '../components/MatchTimeline';
 import PlayerCard from '../components/PlayerCard';
-import { ALL_MATCHES, GAME_META } from '../data/sampleMatchData';
+import useGameClientData from '../hooks/useGameClientData';
 import { parseMatch } from '../utils/matchParser';
+import { resolveGameMeta } from '../utils/matchAdapter';
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 const TABS = ['Viewer', 'Results', 'Raw Packets', 'Schema'];
 
 const MatchViewer = () => {
   const { matchId } = useParams();
-  const match = ALL_MATCHES.find((m) => m.matchId === matchId) || ALL_MATCHES[0];
-  const parsed = parseMatch(match);
-  const meta = GAME_META[match.gameSlug] || {};
+  const { matches, gameMeta, loading, error } = useGameClientData({ limit: 200 });
+  const match = useMemo(
+    () => matches.find((m) => m.matchId === matchId) || matches[0],
+    [matches, matchId]
+  );
+  const parsed = useMemo(() => (match ? parseMatch(match) : null), [match]);
+  const meta = match ? resolveGameMeta(gameMeta, match.gameSlug) : {};
+
+  const events = match?.events || [];
 
   // ─── Playback state ───────────────────────────────────────────────────────
-  const maxTime = match.events[match.events.length - 1]?.time || match.duration * 60;
+  const maxTime = events[events.length - 1]?.time || (match?.duration || 0) * 60;
   const [currentTime, setCurrentTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(4); // seconds per real second
@@ -46,6 +53,11 @@ const MatchViewer = () => {
     return () => clearInterval(intervalRef.current);
   }, [playing, startPlayback]);
 
+  useEffect(() => {
+    setCurrentTime(0);
+    setPlaying(false);
+  }, [matchId]);
+
   const reset = () => { setCurrentTime(0); setPlaying(false); };
   const skip = (s) => setCurrentTime((t) => Math.max(0, Math.min(maxTime, t + s)));
 
@@ -53,11 +65,11 @@ const MatchViewer = () => {
   const [tab, setTab] = useState('Viewer');
 
   // ─── Live player stats (evolve with currentTime) ──────────────────────────
-  const livePlayers = match.players.map((pl) => {
-    const killEvents = match.events.filter(
+  const livePlayers = (match?.players || []).map((pl) => {
+    const killEvents = events.filter(
       (e) => e.time <= currentTime && e.type === 'kill' && e.actor === pl.username
     ).length;
-    const deathEvents = match.events.filter(
+    const deathEvents = events.filter(
       (e) => e.time <= currentTime && e.type === 'kill' && e.target === pl.username
     ).length;
     const progress = maxTime > 0 ? currentTime / maxTime : 0;
@@ -81,11 +93,34 @@ const MatchViewer = () => {
     { stat: 'Score',    ...Object.fromEntries(livePlayers.slice(0, 5).map((p) => [p.username, Math.round(p.score / 100)])) },
   ];
 
+  if (!match) {
+    return (
+      <div className="min-h-screen bg-[#08080c] text-white">
+        <Navigation />
+        <div className="max-w-4xl mx-auto pt-32 px-4">
+          <div className="glass rounded-xl p-6 text-gray-400 text-sm">
+            {loading ? 'Loading match data…' : error || 'No matches available yet.'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#08080c] text-white">
       <Navigation />
 
       <div className="max-w-7xl mx-auto pt-24 px-4 pb-10">
+        {error && (
+          <div className="glass rounded-xl p-4 mb-6 text-sm text-red-300 border border-red-500/20">
+            {error}
+          </div>
+        )}
+        {loading && (
+          <div className="glass rounded-xl p-4 mb-6 text-sm text-gray-400">
+            Refreshing match data…
+          </div>
+        )}
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
           <div>
@@ -108,8 +143,8 @@ const MatchViewer = () => {
           </div>
           {/* Other matches quick-switch */}
           <div className="flex gap-2">
-            {ALL_MATCHES.filter((m) => m.matchId !== matchId).map((m) => {
-              const gm = GAME_META[m.gameSlug] || {};
+            {matches.filter((m) => m.matchId !== matchId).map((m, index) => {
+              const gm = resolveGameMeta(gameMeta, m.gameSlug, index);
               return (
                 <Link
                   key={m.matchId}
@@ -207,7 +242,7 @@ const MatchViewer = () => {
                   />
                   {/* Event markers */}
                   <div className="absolute top-0 left-0 right-0 h-1 pointer-events-none">
-                    {match.events.map((evt, i) => (
+                    {events.map((evt, i) => (
                       <div
                         key={i}
                         className="absolute w-1 h-3 rounded-full -translate-y-1"
@@ -227,10 +262,10 @@ const MatchViewer = () => {
                   <span className="w-2 h-2 rounded-full bg-[#00ff88]" />
                   Match Timeline
                   <span className="ml-auto text-xs text-gray-500">
-                    {match.events.filter((e) => e.time <= currentTime).length} / {match.events.length} events
+                    {events.filter((e) => e.time <= currentTime).length} / {events.length} events
                   </span>
                 </h3>
-                <MatchTimeline events={match.events} currentTime={currentTime} />
+                <MatchTimeline events={events} currentTime={currentTime} />
               </div>
             </div>
 
@@ -280,7 +315,7 @@ const MatchViewer = () => {
         )}
 
         {/* ══════════════════ RESULTS TAB ═════════════════════════════════════ */}
-        {tab === 'Results' && (
+        {tab === 'Results' && parsed && (
           <div className="space-y-6">
             {/* Summary cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
