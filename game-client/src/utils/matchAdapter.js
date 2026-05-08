@@ -92,7 +92,7 @@ export const resolveGameMeta = (gameMeta, slug, index = 0) => {
 
 /**
  * Compute a display score using kills×100 + assists×50 + accuracy×2 + win bonus (250).
- * @param {object} match
+ * @param {{kills?: number, assists?: number, accuracy?: number, result?: string, score?: number}} match
  * @returns {number}
  */
 const buildScore = (match) => {
@@ -217,8 +217,9 @@ export const normalizeMatch = (match, { gameMeta, user } = {}, index = 0) => {
   const events = Array.isArray(match.events) && match.events.length
     ? match.events.map((evt) => ({ ...evt, time: toNumber(evt.time) }))
     : buildEventsFromMatch({ ...match, result }, players[0]?.username || 'Player', meta);
+  const lastEventTime = events[events.length - 1]?.time || 0;
   const durationMinutes = toNumber(match.duration)
-    || Math.max(1, Math.round((events[events.length - 1]?.time || 0) / 60));
+    || Math.max(1, Math.round(lastEventTime / 60));
 
   return {
     matchId: normalizedMatchId,

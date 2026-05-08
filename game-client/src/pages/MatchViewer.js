@@ -19,6 +19,12 @@ const MatchViewer = () => {
     [matches, matchId]
   );
   const hasMatches = matches.length > 0;
+  const emptyStateMessage = (() => {
+    if (loading) return 'Loading match data…';
+    if (error) return error;
+    if (hasMatches) return 'Match not found.';
+    return 'No matches available yet.';
+  })();
   const parsed = useMemo(() => (match ? parseMatch(match) : null), [match]);
   const meta = match ? resolveGameMeta(gameMeta, match.gameSlug) : {};
 
@@ -100,7 +106,7 @@ const MatchViewer = () => {
         <Navigation />
         <div className="max-w-4xl mx-auto pt-32 px-4">
           <div className="glass rounded-xl p-6 text-gray-400 text-sm">
-            {loading ? 'Loading match data…' : error || (hasMatches ? 'Match not found.' : 'No matches available yet.')}
+            {emptyStateMessage}
           </div>
         </div>
       </div>
