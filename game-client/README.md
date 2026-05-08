@@ -21,7 +21,7 @@ game-client/
 │   ├── index.js                   # React entry point
 │   ├── index.css                  # Global styles (GameRise dark theme + Tailwind)
 │   ├── data/
-│   │   └── sampleMatchData.js     # Simulated match data — 3 full matches across Valorant, Apex, CS2
+│   │   └── sampleMatchData.js     # Legacy mock data (kept for local demos)
 │   ├── utils/
 │   │   └── matchParser.js         # Full reverse-engineering pipeline (hex capture → schema → decode → aggregate)
 │   ├── components/
@@ -78,17 +78,22 @@ The `matchParser.js` module simulates a real game-client reverse-engineering wor
 
 ---
 
-## Sample Data
+## Live Data
 
-Three full matches are included:
+The game client now loads real match data from the GameRise backend:
 
-| Match | Game | Map | Mode | Players |
-|---|---|---|---|---|
-| match-001 | Valorant | Ascent | Ranked 5v5 | 10 |
-| match-002 | Apex Legends | Storm Point | Battle Royale | 10 |
-| match-003 | CS2 | Mirage | Competitive 5v5 | 10 |
+- `GET /api/games` for active game metadata
+- `GET /api/matches` for the signed-in user's match history
 
-Each match includes a detailed event timeline (kills, zone transitions, match start/end) and per-player stats (kills, deaths, assists, accuracy, damage, score).
+Make sure you are logged in through the main GameRise app so a valid `token` (and optional `user`) is present in localStorage.
+
+### API Configuration
+
+Set the backend base URL via Vite:
+
+```
+VITE_API_URL=http://localhost:5000
+```
 
 ---
 
