@@ -1,5 +1,7 @@
 const DEFAULT_COLORS = ['#00ff88', '#a78bfa', '#f59e0b', '#60a5fa', '#f87171', '#34d399', '#fb923c', '#e879f9'];
+const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_EVENT = 12;
+const DEFAULT_DURATION_SECONDS = 60;
 const DEFAULT_ICONS = {
   valorant: '🔫',
   'apex-legends': '🎯',
@@ -45,6 +47,7 @@ export const getStoredUser = () => {
   }
 };
 
+// Token payload is used only for client-side display convenience; auth remains server-side.
 const getTokenUser = () => {
   if (typeof window === 'undefined') return null;
   try {
@@ -151,7 +154,10 @@ const buildEventsFromMatch = (match, username, meta) => {
   const kills = toNumber(match.kills);
   const deaths = toNumber(match.deaths);
   const totalEvents = kills + deaths;
-  const durationSeconds = Math.max(toNumber(match.duration) * 60, totalEvents ? totalEvents * SECONDS_PER_EVENT : 60);
+  const durationSeconds = Math.max(
+    toNumber(match.duration) * SECONDS_PER_MINUTE,
+    totalEvents ? totalEvents * SECONDS_PER_EVENT : DEFAULT_DURATION_SECONDS
+  );
   const events = [
     {
       time: 0,
@@ -219,7 +225,7 @@ export const normalizeMatch = (match, { gameMeta, user } = {}, index = 0) => {
     : buildEventsFromMatch({ ...match, result }, players[0]?.username || 'Player', meta);
   const lastEventTime = events[events.length - 1]?.time || 0;
   const durationMinutes = toNumber(match.duration)
-    || Math.max(1, Math.round(lastEventTime / 60));
+    || Math.max(1, Math.round(lastEventTime / SECONDS_PER_MINUTE));
 
   return {
     matchId: normalizedMatchId,

@@ -22,7 +22,7 @@ const MatchViewer = () => {
   const emptyStateMessage = (() => {
     if (loading) return 'Loading match data…';
     if (error) return error;
-    if (hasMatches) return 'Match not found.';
+    if (hasMatches) return 'Match not found. Try selecting a different match from the list.';
     return 'No matches available yet.';
   })();
   const parsed = useMemo(() => (match ? parseMatch(match) : null), [match]);
