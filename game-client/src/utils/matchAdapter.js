@@ -1,4 +1,5 @@
 const DEFAULT_COLORS = ['#00ff88', '#a78bfa', '#f59e0b', '#60a5fa', '#f87171', '#34d399', '#fb923c', '#e879f9'];
+const SECONDS_PER_EVENT = 12;
 const DEFAULT_ICONS = {
   valorant: '🔫',
   'apex-legends': '🎯',
@@ -24,9 +25,9 @@ const toNumber = (value, fallback = 0) => {
  * @returns {string}
  */
 const getInitials = (name) => {
-  const safe = (name || '??').trim();
-  if (!safe) return '??';
-  return safe
+  if (!name || !name.trim()) return '??';
+  return name
+    .trim()
     .split(/\s+/)
     .map((part) => part[0])
     .join('')
@@ -150,7 +151,7 @@ const buildEventsFromMatch = (match, username, meta) => {
   const kills = toNumber(match.kills);
   const deaths = toNumber(match.deaths);
   const totalEvents = kills + deaths;
-  const durationSeconds = Math.max(toNumber(match.duration) * 60, totalEvents ? totalEvents * 12 : 60);
+  const durationSeconds = Math.max(toNumber(match.duration) * 60, totalEvents ? totalEvents * SECONDS_PER_EVENT : 60);
   const events = [
     {
       time: 0,

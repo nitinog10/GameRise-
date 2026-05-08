@@ -15,9 +15,10 @@ const MatchViewer = () => {
   const { matchId } = useParams();
   const { matches, gameMeta, loading, error } = useGameClientData({ limit: 200 });
   const match = useMemo(
-    () => matches.find((m) => m.matchId === matchId) || matches[0],
+    () => matches.find((m) => m.matchId === matchId),
     [matches, matchId]
   );
+  const hasMatches = matches.length > 0;
   const parsed = useMemo(() => (match ? parseMatch(match) : null), [match]);
   const meta = match ? resolveGameMeta(gameMeta, match.gameSlug) : {};
 
@@ -99,7 +100,7 @@ const MatchViewer = () => {
         <Navigation />
         <div className="max-w-4xl mx-auto pt-32 px-4">
           <div className="glass rounded-xl p-6 text-gray-400 text-sm">
-            {loading ? 'Loading match data…' : error || 'No matches available yet.'}
+            {loading ? 'Loading match data…' : error || (hasMatches ? 'Match not found.' : 'No matches available yet.')}
           </div>
         </div>
       </div>

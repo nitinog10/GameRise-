@@ -21,7 +21,7 @@ export async function apiFetch(path, options = {}) {
       const data = await response.json();
       message = data?.error || data?.message || message;
     } catch (error) {
-      // ignore parse failures
+      message = `${message} (unable to parse error response)`;
     }
     throw new Error(message);
   }
