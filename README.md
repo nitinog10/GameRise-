@@ -1,5 +1,5 @@
-# GameRise - Empowering esports
-
+# GameRise - Empowering esports career
+ 
 Full-stack esports platform for Indian and global gamers, featuring a Game Knowledge Hub and AI-powered coaching.
 
 ## Features
