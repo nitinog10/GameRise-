@@ -72,6 +72,17 @@ cp .env.example .env
 npm start
 ```
 
+### Game Client Setup (Observer Viewer)
+```bash
+cd game-client
+npm install
+cp .env.example .env
+# Edit .env with your backend URL (VITE_API_URL)
+npm run start
+```
+
+Ensure `CORS_ORIGINS` in `backend/.env` includes http://localhost:5173.
+
 ## API Endpoints
 
 ### Auth
@@ -118,13 +129,23 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 DYNAMO_TABLE_USERS=gamerise-users
 DYNAMO_TABLE_GAMES=gamerise-games
 DYNAMO_TABLE_COACH_SESSIONS=gamerise-coach-sessions
+DYNAMO_TABLE_MATCHES=gamerise-matches
+DYNAMO_TABLE_INTEGRATIONS=gamerise-integrations
+DYNAMO_TABLE_NOTIFICATIONS=gamerise-notifications
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+OBSERVER_SERVICE_KEY=dev-observer-key
 ```
 
 ### Frontend (.env)
 ```
 REACT_APP_API_URL=http://localhost:5000
+```
+
+### Game Client (.env)
+```
+VITE_API_URL=http://localhost:5000
 ```
 
 ## Project Structure
@@ -168,6 +189,14 @@ gamerise/
 │   │   ├── App.js                # Router configuration
 │   │   ├── index.css             # Tailwind + custom styles
 │   │   └── index.js              # React entry point
+│   └── package.json
+├── game-client/
+│   ├── src/
+│   ├── public/
+│   ├── vite.config.js
+│   └── package.json
+├── observer-bot/
+│   ├── index.js                    # Observer bot ingestion runner
 │   └── package.json
 ├── data/games/                   # Game data JSON files
 │   ├── valorant.json

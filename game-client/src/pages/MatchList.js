@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
+import DiagnosticsPanel from '../components/DiagnosticsPanel';
 import useGameClientData from '../hooks/useGameClientData';
 import { resolveGameMeta } from '../utils/matchAdapter';
 
 const MatchList = () => {
   const [filter, setFilter] = useState('');
-  const { matches, gameMeta, loading, error } = useGameClientData({ limit: 100 });
+  const { matches, gameMeta, loading, error, diagnostics } = useGameClientData({ limit: 100 });
+  const showDiagnostics = Boolean(error || diagnostics?.matchesError || diagnostics?.healthError || diagnostics?.originMismatch);
 
   const filtered = filter
     ? matches.filter((m) => m.gameSlug === filter)
@@ -19,10 +21,11 @@ const MatchList = () => {
       <Navigation />
       <div className="max-w-7xl mx-auto pt-24 px-4 pb-10">
         {error && (
-          <div className="glass-card rounded-xl p-4 mb-6 text-sm text-red-300 border border-red-500/20">
+          <div className="glass-card rounded-xl p-4 mb-4 text-sm text-red-300 border border-red-500/20">
             {error}
           </div>
         )}
+        {showDiagnostics && <DiagnosticsPanel diagnostics={diagnostics} />}
         {loading && (
           <div className="glass-card rounded-xl p-4 mb-6 text-sm text-gray-400">
             Loading matches…

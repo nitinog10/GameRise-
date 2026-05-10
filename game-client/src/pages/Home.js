@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '../components/Navigation';
+import DiagnosticsPanel from '../components/DiagnosticsPanel';
 import useGameClientData from '../hooks/useGameClientData';
 import { resolveGameMeta } from '../utils/matchAdapter';
 
 const Home = () => {
-  const { matches, gameMeta, loading, error } = useGameClientData({ limit: 50 });
+  const { matches, gameMeta, loading, error, diagnostics } = useGameClientData({ limit: 50 });
+  const showDiagnostics = Boolean(error || diagnostics?.matchesError || diagnostics?.healthError || diagnostics?.originMismatch);
 
   const totalMatches = matches.length;
   const totalKills   = matches.reduce((s, m) => s + m.players.reduce((ps, p) => ps + p.kills, 0), 0);
@@ -57,10 +59,11 @@ const Home = () => {
         {/* Stats row */}
         <div className="max-w-7xl mx-auto px-4 pb-12">
           {error && (
-            <div className="glass-card rounded-xl p-4 mb-6 text-sm text-red-300 border border-red-500/20">
+            <div className="glass-card rounded-xl p-4 mb-4 text-sm text-red-300 border border-red-500/20">
               {error}
             </div>
           )}
+          {showDiagnostics && <DiagnosticsPanel diagnostics={diagnostics} />}
           {loading && (
             <div className="glass-card rounded-xl p-4 mb-6 text-sm text-gray-400">
               Loading live match data…

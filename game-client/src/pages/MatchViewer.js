@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 import Navigation from '../components/Navigation';
+import DiagnosticsPanel from '../components/DiagnosticsPanel';
 import MatchTimeline from '../components/MatchTimeline';
 import PlayerCard from '../components/PlayerCard';
 import useGameClientData from '../hooks/useGameClientData';
@@ -13,7 +14,7 @@ const TABS = ['Viewer', 'Results', 'Raw Packets', 'Schema'];
 
 const MatchViewer = () => {
   const { matchId } = useParams();
-  const { matches, gameMeta, loading, error } = useGameClientData({ limit: 200 });
+  const { matches, gameMeta, loading, error, diagnostics } = useGameClientData({ limit: 200 });
   const match = useMemo(
     () => matches.find((m) => m.matchId === matchId),
     [matches, matchId]
@@ -27,6 +28,7 @@ const MatchViewer = () => {
   })();
   const parsed = useMemo(() => (match ? parseMatch(match) : null), [match]);
   const meta = match ? resolveGameMeta(gameMeta, match.gameSlug) : {};
+  const showDiagnostics = Boolean(error || diagnostics?.matchesError || diagnostics?.healthError || diagnostics?.originMismatch);
 
   const events = match?.events || [];
 
@@ -104,10 +106,11 @@ const MatchViewer = () => {
     return (
       <div className="min-h-screen bg-[#08080c] text-white">
         <Navigation />
-        <div className="max-w-4xl mx-auto pt-32 px-4">
+        <div className="max-w-4xl mx-auto pt-32 px-4 space-y-4">
           <div className="glass rounded-xl p-6 text-gray-400 text-sm">
             {emptyStateMessage}
           </div>
+          {showDiagnostics && <DiagnosticsPanel diagnostics={diagnostics} />}
         </div>
       </div>
     );
@@ -119,10 +122,11 @@ const MatchViewer = () => {
 
       <div className="max-w-7xl mx-auto pt-24 px-4 pb-10">
         {error && (
-          <div className="glass rounded-xl p-4 mb-6 text-sm text-red-300 border border-red-500/20">
+          <div className="glass rounded-xl p-4 mb-4 text-sm text-red-300 border border-red-500/20">
             {error}
           </div>
         )}
+        {showDiagnostics && <DiagnosticsPanel diagnostics={diagnostics} />}
         {loading && (
           <div className="glass rounded-xl p-4 mb-6 text-sm text-gray-400">
             Refreshing match data…
