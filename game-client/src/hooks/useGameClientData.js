@@ -114,7 +114,10 @@ const useGameClientData = ({ limit = 50 } = {}) => {
 
   useEffect(() => {
     const identity = getUserIdentity();
-    if (!identity.userId) return undefined;
+    if (!identity.userId) {
+      setSocketStatus('disconnected');
+      return () => {};
+    }
     const socket = io(API_ORIGIN, { transports: ['websocket'] });
     socket.on('connect', () => {
       setSocketStatus('connected');

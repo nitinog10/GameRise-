@@ -6,6 +6,7 @@ const numberValue = (value, fallback = 0) => {
 };
 
 const pickFirst = (...values) => values.find((value) => value !== undefined && value !== null);
+const isRecord = (value) => value && typeof value === 'object' && !Array.isArray(value);
 
 const extractPrimaryPlayer = (players = [], { userId, accountId, inGameUsername } = {}) => {
   if (!Array.isArray(players) || players.length === 0) return null;
@@ -58,7 +59,7 @@ const parseCapturePayload = (capture, payload) => {
 };
 
 const adaptValorantPayload = (payload) => {
-  const match = payload.apiMatch || payload.match || payload.stats || payload;
+  const match = [payload.apiMatch, payload.match, payload.stats, payload].find(isRecord) || {};
   const stats = match.stats || {};
   return {
     result: match.result,
@@ -74,7 +75,7 @@ const adaptValorantPayload = (payload) => {
 };
 
 const adaptBattleRoyalePayload = (payload) => {
-  const match = payload.apiMatch || payload.match || payload.telemetry || payload;
+  const match = [payload.apiMatch, payload.match, payload.telemetry, payload].find(isRecord) || {};
   return {
     result: match.result,
     kills: pickFirst(match.kills, match.stats?.kills),
@@ -97,10 +98,12 @@ const gameAdapters = {
 const normalizeObserverPayload = (payload = {}) => {
   const gameSlug = payload.gameSlug || payload.game || payload.slug || 'unknown';
   const catalog = getIntegrationBySlug(gameSlug);
-  const adapter = gameAdapters[gameSlug];
+  const adapter = Object.prototype.hasOwnProperty.call(gameAdapters, gameSlug)
+    ? gameAdapters[gameSlug]
+    : null;
   const adapterStats = adapter ? adapter(payload) : {};
   const captureStats = parseCapturePayload(payload.capture, payload);
-  const base = payload.match || payload.stats || payload;
+  const base = [payload.match, payload.stats, payload].find(isRecord) || {};
   const result = pickFirst(
     payload.result,
     captureStats.result,

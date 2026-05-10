@@ -5,9 +5,21 @@ const Notification = require('../models/Notification');
 const IntegrationConfig = require('../models/IntegrationConfig');
 const { getIntegrationCatalog, getIntegrationBySlug } = require('../services/integrationCatalog');
 const { normalizeObserverPayload } = require('../services/matchIngestion');
+const rateLimiter = require('../middleware/rateLimiter');
 const router = express.Router();
 
-router.post('/ingest', async (req, res, next) => {
+const authLimiter = rateLimiter({
+  windowMs: 60 * 1000,
+  max: 120,
+  keyGenerator: (req) => req.user?.userId || req.ip
+});
+const serviceLimiter = rateLimiter({
+  windowMs: 60 * 1000,
+  max: 300,
+  keyGenerator: (req) => req.headers['x-observer-key'] || req.ip
+});
+
+router.post('/ingest', serviceLimiter, async (req, res, next) => {
   const payload = req.body || {};
   try {
     if (req.headers['x-observer-key'] !== process.env.OBSERVER_SERVICE_KEY) {
@@ -34,11 +46,14 @@ router.post('/ingest', async (req, res, next) => {
     res.status(201).json({ match });
   } catch (e) {
     if (payload.integrationId) {
-      await IntegrationConfig.updateStatus(payload.integrationId, {
-        status: 'error',
-        lastError: e.message || 'Observer ingest failed',
-        lastSyncAt: new Date().toISOString()
-      });
+      try {
+        await IntegrationConfig.updateStatus(payload.integrationId, {
+          status: 'error',
+          lastError: e.message || 'Observer ingest failed',
+          lastSyncAt: new Date().toISOString()
+        });
+      } catch (updateError) {
+      }
     }
     next(e);
   }
@@ -48,7 +63,7 @@ router.get('/catalog', (req, res) => {
   res.json({ catalog: getIntegrationCatalog() });
 });
 
-router.post('/integrations', authMiddleware, async (req, res, next) => {
+router.post('/integrations', authMiddleware, authLimiter, async (req, res, next) => {
   try {
     const payload = req.body || {};
     const gameSlug = payload.gameSlug || payload.game;
@@ -75,7 +90,7 @@ router.post('/integrations', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get('/integrations', authMiddleware, async (req, res, next) => {
+router.get('/integrations', authMiddleware, authLimiter, async (req, res, next) => {
   try {
     const integrations = await IntegrationConfig.listByUser(req.user.userId);
     res.json({ integrations });
@@ -84,7 +99,7 @@ router.get('/integrations', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.patch('/integrations/:id', authMiddleware, async (req, res, next) => {
+router.patch('/integrations/:id', authMiddleware, authLimiter, async (req, res, next) => {
   try {
     const integration = await IntegrationConfig.findById(req.params.id);
     if (!integration || integration.userId !== req.user.userId) {
@@ -101,7 +116,7 @@ router.patch('/integrations/:id', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.post('/integrations/:id/status', async (req, res, next) => {
+router.post('/integrations/:id/status', serviceLimiter, async (req, res, next) => {
   try {
     if (req.headers['x-observer-key'] !== process.env.OBSERVER_SERVICE_KEY) {
       return res.status(401).json({ error: 'Unauthorized observer key' });

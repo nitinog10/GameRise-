@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Navigation from '../components/Navigation';
 import DiagnosticsPanel from '../components/DiagnosticsPanel';
 import { apiFetch, API_BASE, API_ORIGIN } from '../utils/api';
@@ -35,7 +35,7 @@ const Integrations = () => {
   const hasToken = Boolean(typeof window !== 'undefined' && localStorage.getItem('token'));
   const selectedCatalog = catalog.find((entry) => entry.gameSlug === form.gameSlug);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError('');
     setMessage('');
@@ -66,11 +66,11 @@ const Integrations = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [hasToken, identity.userId]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
 
   const onSelectIntegration = (integration) => {
     setEditingId(integration.integrationId);
