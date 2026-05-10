@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { apiFetch, API_BASE, API_ORIGIN } from '../utils/api';
 import { buildGameMeta, getStoredUser, getUserIdentity, normalizeMatches } from '../utils/matchAdapter';
@@ -15,6 +15,7 @@ const useGameClientData = ({ limit = 50 } = {}) => {
   const [gameMeta, setGameMeta] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [socketUserId, setSocketUserId] = useState(() => getUserIdentity().userId);
   const [diagnostics, setDiagnostics] = useState({
     apiBase: API_BASE,
     apiOrigin: API_ORIGIN,
@@ -31,12 +32,14 @@ const useGameClientData = ({ limit = 50 } = {}) => {
   const [socketStatus, setSocketStatus] = useState('disconnected');
   const [lastUpdateAt, setLastUpdateAt] = useState(null);
   const storedUser = useMemo(() => getStoredUser(), []);
+  const loadRef = useRef(null);
 
   const load = useCallback(async (trigger = 'manual') => {
     setLoading(true);
     setError('');
     try {
       const identity = getUserIdentity();
+      setSocketUserId(identity.userId || null);
       const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
       const hasToken = Boolean(token);
       const originMismatch = typeof window !== 'undefined' && API_ORIGIN !== window.location.origin;
@@ -113,26 +116,29 @@ const useGameClientData = ({ limit = 50 } = {}) => {
   }, [load]);
 
   useEffect(() => {
-    const identity = getUserIdentity();
-    if (!identity.userId) {
+    loadRef.current = load;
+  }, [load]);
+
+  useEffect(() => {
+    if (!socketUserId) {
       setSocketStatus('disconnected');
       return () => {};
     }
     const socket = io(API_ORIGIN, { transports: ['websocket'] });
     socket.on('connect', () => {
       setSocketStatus('connected');
-      socket.emit('register_user', identity.userId);
+      socket.emit('register_user', socketUserId);
     });
     socket.on('disconnect', () => setSocketStatus('disconnected'));
     socket.on('connect_error', (err) => setSocketStatus(`error: ${err.message}`));
     socket.on('observer_update', (payload) => {
       if (payload?.type === 'match_ingested') {
         setLastUpdateAt(new Date().toISOString());
-        load('observer_update');
+        if (loadRef.current) loadRef.current('observer_update');
       }
     });
     return () => socket.disconnect();
-  }, [load]);
+  }, [socketUserId]);
 
   useEffect(() => {
     setDiagnostics((prev) => ({

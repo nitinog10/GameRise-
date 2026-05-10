@@ -37,10 +37,9 @@ const parseCapturePayload = (capture, payload) => {
   const username = primary?.username || primary?.inGameUsername || payload.inGameUsername || payload.userId || 'Player';
   const eventStats = deriveStatsFromEvents(capture.events || [], username);
   const duration = pickFirst(capture.duration, capture.meta?.duration);
-  const maxEventTime = Math.max(
-    0,
-    ...(Array.isArray(capture.events) ? capture.events.map((evt) => Number(evt.time) || 0) : [0])
-  );
+  const maxEventTime = Array.isArray(capture.events)
+    ? capture.events.reduce((max, evt) => Math.max(max, Number(evt.time) || 0), 0)
+    : 0;
   return {
     result: capture.result,
     kills: pickFirst(primary?.kills, eventStats.kills),
@@ -89,19 +88,15 @@ const adaptBattleRoyalePayload = (payload) => {
   };
 };
 
-const gameAdapters = {
-  valorant: adaptValorantPayload,
-  bgmi: adaptBattleRoyalePayload,
-  codm: adaptBattleRoyalePayload
-};
-
 const normalizeObserverPayload = (payload = {}) => {
   const gameSlug = payload.gameSlug || payload.game || payload.slug || 'unknown';
   const catalog = getIntegrationBySlug(gameSlug);
-  const adapter = Object.prototype.hasOwnProperty.call(gameAdapters, gameSlug)
-    ? gameAdapters[gameSlug]
-    : null;
-  const adapterStats = typeof adapter === 'function' ? adapter(payload) : {};
+  let adapterStats = {};
+  if (gameSlug === 'valorant') {
+    adapterStats = adaptValorantPayload(payload);
+  } else if (gameSlug === 'bgmi' || gameSlug === 'codm') {
+    adapterStats = adaptBattleRoyalePayload(payload);
+  }
   const captureStats = parseCapturePayload(payload.capture, payload);
   const base = [payload.match, payload.stats, payload].find(isRecord) || {};
   const result = pickFirst(
