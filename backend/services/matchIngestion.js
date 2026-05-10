@@ -101,7 +101,7 @@ const normalizeObserverPayload = (payload = {}) => {
   const adapter = Object.prototype.hasOwnProperty.call(gameAdapters, gameSlug)
     ? gameAdapters[gameSlug]
     : null;
-  const adapterStats = adapter ? adapter(payload) : {};
+  const adapterStats = typeof adapter === 'function' ? adapter(payload) : {};
   const captureStats = parseCapturePayload(payload.capture, payload);
   const base = [payload.match, payload.stats, payload].find(isRecord) || {};
   const result = pickFirst(

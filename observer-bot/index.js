@@ -17,19 +17,19 @@ const buildMockPlayers = (integration) => {
   }));
 };
 
-const buildMockCapture = (integration, matchSnapshot) => ({
+const buildMockCapture = (integration, matchContext) => ({
   meta: {
-    map: matchSnapshot.map,
-    mode: matchSnapshot.mode,
-    duration: matchSnapshot.duration
+    map: matchContext.map,
+    mode: matchContext.mode,
+    duration: matchContext.duration
   },
   players: buildMockPlayers(integration),
   events: [
     { time: 30, type: 'start', actor: 'system', detail: 'Match start' },
-    { time: 90, type: 'kill', actor: matchSnapshot.inGameUsername || 'You', target: 'Rogue', detail: 'Opening duel' },
+    { time: 90, type: 'kill', actor: matchContext.inGameUsername || 'You', target: 'Rogue', detail: 'Opening duel' },
     { time: 480, type: 'zone', actor: 'system', detail: 'Zone shrink' },
-    { time: 960, type: 'kill', actor: 'Viper', target: matchSnapshot.inGameUsername || 'You', detail: 'Final fight' },
-    { time: matchSnapshot.duration * 60, type: 'end', actor: 'system', detail: 'Match end' }
+    { time: 960, type: 'kill', actor: 'Viper', target: matchContext.inGameUsername || 'You', detail: 'Final fight' },
+    { time: matchContext.duration * 60, type: 'end', actor: 'system', detail: 'Match end' }
   ],
   rawPackets: [
     '01 00 00 00 00 00 01 4D 61 74 63 68',

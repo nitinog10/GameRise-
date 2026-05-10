@@ -5,17 +5,21 @@ const Notification = require('../models/Notification');
 const IntegrationConfig = require('../models/IntegrationConfig');
 const { getIntegrationCatalog, getIntegrationBySlug } = require('../services/integrationCatalog');
 const { normalizeObserverPayload } = require('../services/matchIngestion');
-const rateLimiter = require('../middleware/rateLimiter');
+const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
-const authLimiter = rateLimiter({
+const authLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
   keyGenerator: (req) => req.user?.userId || req.ip
 });
-const serviceLimiter = rateLimiter({
+const serviceLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
   keyGenerator: (req) => req.headers['x-observer-key'] || req.ip
 });
 
@@ -53,6 +57,7 @@ router.post('/ingest', serviceLimiter, async (req, res, next) => {
           lastSyncAt: new Date().toISOString()
         });
       } catch (updateError) {
+        console.error('Observer integration status update failed', updateError.message || updateError);
       }
     }
     next(e);
