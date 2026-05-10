@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import MatchList from './pages/MatchList';
 import MatchViewer from './pages/MatchViewer';
 import Leaderboard from './pages/Leaderboard';
+import Integrations from './pages/Integrations';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/matches"              element={<MatchList />} />
         <Route path="/matches/:matchId"     element={<MatchViewer />} />
         <Route path="/leaderboard"          element={<Leaderboard />} />
+        <Route path="/integrations"         element={<Integrations />} />
         <Route path="*"                     element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

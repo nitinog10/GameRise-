@@ -48,7 +48,7 @@ export const getStoredUser = () => {
 };
 
 // Token payload is used only for client-side display convenience; auth remains server-side.
-const getTokenUser = () => {
+export const getTokenUser = () => {
   if (typeof window === 'undefined') return null;
   try {
     const token = localStorage.getItem('token');
@@ -59,6 +59,14 @@ const getTokenUser = () => {
   } catch (error) {
     return null;
   }
+};
+
+export const getUserIdentity = () => {
+  const storedUser = getStoredUser();
+  const tokenUser = getTokenUser();
+  const userId = storedUser?.userId || tokenUser?.userId || null;
+  const username = storedUser?.displayName || storedUser?.username || tokenUser?.username || tokenUser?.email || storedUser?.email || null;
+  return { storedUser, tokenUser, userId, username };
 };
 
 /**

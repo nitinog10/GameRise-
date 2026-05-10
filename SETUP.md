@@ -128,8 +128,13 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
 DYNAMO_TABLE_USERS=gamerise-users
 DYNAMO_TABLE_GAMES=gamerise-games
 DYNAMO_TABLE_COACH_SESSIONS=gamerise-coach-sessions
+DYNAMO_TABLE_MATCHES=gamerise-matches
+DYNAMO_TABLE_INTEGRATIONS=gamerise-integrations
+DYNAMO_TABLE_NOTIFICATIONS=gamerise-notifications
 OPENROUTER_API_KEY=your_openrouter_api_key
 OPENROUTER_MODEL=anthropic/claude-3.5-sonnet
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+OBSERVER_SERVICE_KEY=dev-observer-key
 ```
 
 ### Start Backend Server
@@ -188,7 +193,28 @@ npm start
 
 Frontend should open at http://localhost:3000
 
-## Step 6: Test the Application
+## Step 6: Game Client Setup
+
+The game client is a separate Vite app for observer-driven match viewing.
+
+```bash
+cd game-client
+npm install
+```
+
+Create `game-client/.env`:
+```
+VITE_API_URL=http://localhost:5000
+```
+
+Start the game client:
+```bash
+npm run start
+```
+
+Game client runs at http://localhost:5173 (ensure CORS_ORIGINS includes this origin).
+
+## Step 7: Test the Application
 
 1. Go to http://localhost:3000
 2. Click "Register" and create a new account

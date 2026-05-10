@@ -23,12 +23,24 @@ loadGameData();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: 'http://localhost:3000' } });
+const defaultOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+const allowedOrigins = (process.env.CORS_ORIGINS || defaultOrigins.join(','))
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+};
+const io = new Server(server, { cors: { origin: allowedOrigins } });
 app.set('io', io);
 io.on('connection', (socket) => { socket.on('register_user', (userId) => socket.join(userId)); });
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.get('/api/test', (req, res) => {
