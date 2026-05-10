@@ -82,7 +82,7 @@ const adaptBattleRoyalePayload = (payload) => {
     assists: pickFirst(match.assists, match.stats?.assists),
     accuracy: pickFirst(match.accuracy, match.stats?.accuracy),
     placement: pickFirst(match.placement, match.rank),
-    duration: pickFirst(match.duration, match.length),
+    duration: pickFirst(match.duration, match.durationSeconds, match.metadata?.duration),
     map: pickFirst(match.map, match.metadata?.map),
     mode: pickFirst(match.mode, match.metadata?.mode)
   };

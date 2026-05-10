@@ -17,13 +17,24 @@ const updateIntegrationStatus = async (integrationId, updates) => {
   }
 };
 
-router.post('/ingest', rateLimit({
+const ingestLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => req.headers['x-observer-key'] || req.ip
-}), async (req, res, next) => {
+});
+const integrationsLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 240,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.user?.userId || req.headers['x-observer-key'] || req.ip
+});
+
+router.use('/integrations', integrationsLimiter);
+
+router.post('/ingest', ingestLimiter, async (req, res, next) => {
   const payload = req.body || {};
   try {
     if (req.headers['x-observer-key'] !== process.env.OBSERVER_SERVICE_KEY) {
@@ -60,13 +71,7 @@ router.get('/catalog', (req, res) => {
   res.json({ catalog: getIntegrationCatalog() });
 });
 
-router.post('/integrations', authMiddleware, rateLimit({
-  windowMs: 60 * 1000,
-  max: 120,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.user?.userId || req.ip
-}), async (req, res, next) => {
+router.post('/integrations', authMiddleware, async (req, res, next) => {
   try {
     const payload = req.body || {};
     const gameSlug = payload.gameSlug || payload.game;
@@ -93,13 +98,7 @@ router.post('/integrations', authMiddleware, rateLimit({
   }
 });
 
-router.get('/integrations', authMiddleware, rateLimit({
-  windowMs: 60 * 1000,
-  max: 240,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.user?.userId || req.ip
-}), async (req, res, next) => {
+router.get('/integrations', authMiddleware, async (req, res, next) => {
   try {
     const integrations = await IntegrationConfig.listByUser(req.user.userId);
     res.json({ integrations });
@@ -108,13 +107,7 @@ router.get('/integrations', authMiddleware, rateLimit({
   }
 });
 
-router.patch('/integrations/:id', authMiddleware, rateLimit({
-  windowMs: 60 * 1000,
-  max: 120,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.user?.userId || req.ip
-}), async (req, res, next) => {
+router.patch('/integrations/:id', authMiddleware, async (req, res, next) => {
   try {
     const integration = await IntegrationConfig.findById(req.params.id);
     if (!integration || integration.userId !== req.user.userId) {
@@ -131,13 +124,7 @@ router.patch('/integrations/:id', authMiddleware, rateLimit({
   }
 });
 
-router.post('/integrations/:id/status', rateLimit({
-  windowMs: 60 * 1000,
-  max: 300,
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.headers['x-observer-key'] || req.ip
-}), async (req, res, next) => {
+router.post('/integrations/:id/status', async (req, res, next) => {
   try {
     if (req.headers['x-observer-key'] !== process.env.OBSERVER_SERVICE_KEY) {
       return res.status(401).json({ error: 'Unauthorized observer key' });
